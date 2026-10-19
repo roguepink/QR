@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#140c2a">
+<title>あんしんQR</title>
+<meta name="description" content="QRコードを読んで、どこへ行くかを先に見せる、広告なしのシンプルなQRリーダー。お店の注文・名刺・Wi-Fi に。読んだ内容はスマホの外に送りません。">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="あんしんQR">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta property="og:type" content="website">
+<meta property="og:title" content="あんしんQR">
+<meta property="og:description" content="QRコードを読んで、どこへ行くかを先に見せる、広告なしのシンプルなQRリーダー。お店の注文・名刺・Wi-Fi に。読んだ内容はスマホの外に送りません。">
+<meta property="og:image" content="https://roguepink.github.io/QR/ogp.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root { color-scheme: dark; --bg: #140c2a; --card: #241449; --ink: #1b1430; --yellow: #ffe066; --green: #06c755; --red: #ff6b6b; --orange: #ffb347;
+    --text: #fff; --muted: #d9d2ee; --paper: #fff; --paper-ink: #1b1430; --paper-muted: #5a5274; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", "Noto Sans JP", system-ui, sans-serif; font-size: 18px; line-height: 1.6; }
+  body { padding: calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 28px); max-width: 560px; margin: 0 auto; }
+  button, a.btn { font: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, a.btn:focus-visible, input:focus-visible { outline: 4px solid var(--yellow); outline-offset: 2px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+  h1 { margin: 0; font-size: 26px; font-weight: 900; line-height: 1.2; }
+  h1 small { display: block; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .tools { display: flex; gap: 6px; }
+  .tool { min-width: 56px; min-height: 56px; padding: 4px 10px; border: 3px solid var(--ink); border-radius: 14px; background: #3a2a66; color: #fff; font-size: 14px; font-weight: 800; line-height: 1.15; }
+  .tool b { display: block; font-size: 22px; line-height: 1.1; }
+  .tool.on { background: var(--yellow); color: var(--ink); }
+  .tool:disabled { opacity: .4; }
+  .view { display: none; }
+  .view.on { display: block; }
+
+  /* ---- カメラ ---- */
+  .finder { position: relative; width: 100%; aspect-ratio: 1 / 1; background: #000; border-radius: 20px; overflow: hidden; border: 4px solid var(--ink); }
+  .finder video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: center; }
+  .finder .frame { position: absolute; inset: 14%; border-radius: 16px; pointer-events: none;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35); }
+  .finder .frame i { position: absolute; width: 42px; height: 42px; border: 6px solid var(--yellow); border-radius: 6px; }
+  .finder .frame i:nth-child(1) { left: -6px; top: -6px; border-right: 0; border-bottom: 0; }
+  .finder .frame i:nth-child(2) { right: -6px; top: -6px; border-left: 0; border-bottom: 0; }
+  .finder .frame i:nth-child(3) { left: -6px; bottom: -6px; border-right: 0; border-top: 0; }
+  .finder .frame i:nth-child(4) { right: -6px; bottom: -6px; border-left: 0; border-top: 0; }
+  .finder .msg { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 12px; text-align: center; font-weight: 800; font-size: 18px;
+    background: rgba(20, 12, 42, .78); }
+  .finder .cover { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px; text-align: center; background: var(--card); }
+  .finder .cover.on { display: flex; }
+  .finder .cover p { margin: 0; font-size: 18px; line-height: 1.6; }
+  .finder .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity .35s; }
+  .finder .flash.on { opacity: .8; transition: none; }
+  .zoom { display: none; align-items: center; gap: 10px; margin: 12px 0 0; font-weight: 800; }
+  .zoom.on { display: flex; }
+  .zoom input { flex: 1; min-height: 44px; accent-color: var(--yellow); }
+  .zoom span { min-width: 3.2em; text-align: right; font-size: 18px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .row.one { grid-template-columns: 1fr; }
+  .big { display: block; width: 100%; font: inherit; font-weight: 900; font-size: 22px; padding: 16px 12px; border: 4px solid var(--ink); border-radius: 999px;
+    background: var(--yellow); color: var(--ink); text-align: center; text-decoration: none; line-height: 1.3; min-height: 64px; }
+  .big.green { background: var(--green); color: #fff; }
+  .big.sub { background: #fff; color: var(--ink); font-size: 19px; }
+  .big.ghost { background: #3a2a66; color: #fff; font-size: 19px; }
+  .big:disabled { opacity: .45; cursor: default; }
+  .big + .big { margin-top: 10px; }
+  .big small { display: block; font-size: 14px; font-weight: 800; margin-top: 2px; }
+  input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .note { font-size: 16px; color: var(--muted); line-height: 1.65; margin: 14px 0 0; }
+  .banner { background: #4a1f1f; border: 3px solid var(--red); border-radius: 14px; padding: 12px; margin: 0 0 12px; font-weight: 700; display: none; }
+  .banner.on { display: block; }
+
+  /* ---- 結果 ---- */
+  .kind { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 900; margin: 0 0 10px; }
+  .kind b { font-size: 34px; line-height: 1; }
+  .paper { background: var(--paper); color: var(--paper-ink); border: 4px solid var(--ink); border-radius: 18px; padding: 16px; margin-bottom: 12px; }
+  .paper .lbl { font-size: 15px; font-weight: 800; color: var(--paper-muted); margin: 0 0 2px; }
+  .paper .main { font-size: 30px; font-weight: 900; line-height: 1.3; margin: 0 0 10px; overflow-wrap: anywhere; }
+  .paper .main.mid { font-size: 24px; }
+  .paper .full { font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; word-break: break-all; color: #2d2650; margin: 0;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; max-height: 9em; overflow: auto; white-space: pre-wrap; }
+  .paper .service { display: inline-block; background: #e6f8ec; color: #0a6b2e; border-radius: 999px; padding: 2px 12px; font-weight: 800; font-size: 16px; margin: 0 0 8px; }
+  .paper .field { padding: 8px 0; border-top: 2px solid #ece8f6; }
+  .paper .field:first-child { border-top: 0; }
+  .paper .field .v { font-size: 22px; font-weight: 800; overflow-wrap: anywhere; }
+  .paper .field .v.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .04em; }
+  .paper .field .v small { font-size: 15px; font-weight: 700; color: var(--paper-muted); }
+  .paper .mini { display: inline-block; font: inherit; font-size: 16px; font-weight: 800; padding: 8px 14px; border: 3px solid var(--ink); border-radius: 999px; background: var(--yellow); color: var(--ink); margin: 6px 6px 0 0; text-decoration: none; min-height: 44px; }
+  .paper .mini.white { background: #fff; }
+  .check { border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; font-weight: 700; font-size: 17px; line-height: 1.55; border: 3px solid; }
+  .check.ok { background: #0e3a22; border-color: #06c755; }
+  .check.warn { background: #4a3410; border-color: var(--orange); }
+  .check.danger { background: #4a1f1f; border-color: var(--red); }
+  .check ul { margin: 6px 0 0; padding-left: 1.3em; }
+  .check li { margin: 4px 0; }
+  .check .t { font-size: 19px; font-weight: 900; }
+  .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 24px); transform: translateX(-50%); background: #fff; color: var(--ink); font-weight: 900; font-size: 18px;
+    padding: 12px 22px; border-radius: 999px; border: 3px solid var(--ink); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 50; white-space: nowrap; }
+  .toast.on { opacity: 1; }
+
+  /* ---- 履歴 ---- */
+  .hist { margin-top: 22px; }
+  .hist h2 { font-size: 18px; margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; }
+  .hist h2 button { font-size: 15px; font-weight: 800; background: none; border: 2px solid var(--muted); color: var(--muted); border-radius: 999px; padding: 6px 12px; min-height: 40px; }
+  .hist .item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: var(--card); border: 3px solid var(--ink); border-radius: 14px; padding: 10px 12px; color: #fff; margin-bottom: 8px; min-height: 60px; }
+  .hist .item b { font-size: 26px; line-height: 1; }
+  .hist .item span { flex: 1; min-width: 0; font-size: 17px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hist .item small { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .hist .empty { color: var(--muted); font-size: 16px; }
+
+  /* ---- 使い方 ---- */
+  .sheet { position: fixed; inset: 0; background: rgba(0, 0, 0, .6); display: none; z-index: 40; overflow: auto; padding: 16px; }
+  .sheet.on { display: block; }
+  .sheet .in { background: var(--card); border: 4px solid var(--ink); border-radius: 20px; padding: 18px; max-width: 560px; margin: calc(env(safe-area-inset-top) + 10px) auto 40px; }
+  .sheet h2 { font-size: 22px; margin: 0 0 8px; }
+  .sheet h3 { font-size: 18px; margin: 18px 0 4px; color: var(--yellow); }
+  .sheet p, .sheet li { font-size: 17px; line-height: 1.65; margin: 0 0 6px; }
+  .sheet ul { padding-left: 1.3em; margin: 0; }
+  footer { font-size: 14px; color: var(--muted); line-height: 1.6; margin-top: 18px; text-align: center; }
+  .hidden { display: none !important; }
+  @media (max-width: 360px) { h1 { font-size: 22px; } .paper .main { font-size: 26px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>あんしんQR<small>読んで、確かめて、開く</small></h1>
+  <div class="tools">
+    <button type="button" class="tool" id="soundBtn" aria-pressed="true" title="読めたときの音"><b>🔔</b>音</button>
+    <button type="button" class="tool" id="helpBtn"><b>❓</b>使い方</button>
+  </div>
+</header>
+
+<div class="banner" id="lineBanner">LINE の中で開いていると、カメラが使えないことがあります。右上か右下の「…」や「<b>↗</b>」から「<b>Safari で開く</b>」(iPhone)/「<b>他のアプリで開く</b>」(Android)を選んでください。</div>
+
+<!-- ===== 読み取り画面 ===== -->
+<section class="view on" id="scan">
+  <div class="finder">
+    <video id="video" playsinline muted autoplay></video>
+    <div class="frame"><i></i><i></i><i></i><i></i></div>
+    <div class="flash" id="flash"></div>
+    <div class="msg" id="scanMsg">QRコードを わくの中に 入れてください</div>
+    <div class="cover" id="cover">
+      <p id="coverMsg">カメラを起動しています…</p>
+      <button type="button" class="big" id="startBtn">カメラを始める</button>
+    </div>
+  </div>
+  <div class="zoom" id="zoomBox"><label for="zoom">🔍 拡大</label><input type="range" id="zoom" min="1" max="3" step="0.1" value="1"><span id="zoomVal">1.0倍</span></div>
+  <div class="row">
+    <button type="button" class="big ghost" id="torchBtn" disabled>💡 ライト<small>暗いところで</small></button>
+    <button type="button" class="big sub" id="fileBtn">🖼 写真から読む<small>スクショ・画像</small></button>
+    <input type="file" id="file" accept="image/*">
+  </div>
+  <p class="note">読んだ内容は このスマホの中にだけ残り、どこにも送りません。広告もありません。</p>
+
+  <div class="hist" id="hist">
+    <h2>さいきん読んだもの <button type="button" id="clearHist">消す</button></h2>
+    <div id="histList"></div>
+  </div>
+</section>
+
+<!-- ===== 結果画面 ===== -->
+<section class="view" id="result">
+  <p class="kind"><b id="kindIcon">🌐</b><span id="kindName">ホームページ</span></p>
+  <div id="checkBox" class="check ok"></div>
+  <div class="paper" id="paper"></div>
+  <div id="actions"></div>
+  <button type="button" class="big green" id="againBtn" style="margin-top:14px">📷 もう一度 読む</button>
+</section>
+
+<footer>あんしんQR v1.0 ・ 無料・広告なし ・ <a href="https://github.com/roguepink/QR" style="color:inherit">しくみ</a></footer>
+
+<div class="sheet" id="help">
+  <div class="in">
+    <h2>使い方</h2>
+    <p>1. アプリを開くと カメラが動きます。QRコードを 黄色いわくの中に 入れるだけ。</p>
+    <p>2. 読めると「どこへ行くか」「何が書いてあるか」を先に見せます。<b>勝手には開きません。</b></p>
+    <p>3. 内容を確かめて、大きなボタンを押します(「開く」「電話をかける」など)。</p>
+    <h3>読めないとき</h3>
+    <ul>
+      <li>少し離す・近づける、まっすぐ向ける、明るくする(「💡 ライト」)</li>
+      <li>名刺など小さいQRは「🔍 拡大」で大きくする</li>
+      <li>LINE やメールで届いたQRは、スクショを撮って「🖼 写真から読む」</li>
+    </ul>
+    <h3>カメラが動かないとき</h3>
+    <ul>
+      <li><b>iPhone:</b> 設定 → アプリ → Safari → カメラ を「確認」か「許可」に。ホーム画面に入れたアプリなら 設定 → アプリ → あんしんQR → カメラ</li>
+      <li><b>Android:</b> アドレスの左の 🔒 や ⓘ → 権限 → カメラ を「許可」に</li>
+      <li><b>LINE の中で開いている</b>ときは、メニューから Safari や Chrome で開き直す</li>
+    </ul>
+    <h3>安全のために</h3>
+    <ul>
+      <li>読んだあとに出る「行き先」が、お店や相手の名前と合っているか 見てから開く</li>
+      <li>貼ってあるQRの上に 別のシールが重ねてあったら 読まない(すり替えの手口)</li>
+      <li>開いた先で <b>パスワード・カード番号・暗証番号</b> を求められたら、いったん閉じて 誰かに相談する</li>
+      <li>このアプリは 読んだ内容を どこにも送りません。「さいきん読んだもの」も このスマホの中だけです</li>
+    </ul>
+    <h3>ホーム画面に入れる</h3>
+    <p>iPhone(Safari): 共有ボタン → 「ホーム画面に追加」。Android(Chrome): メニュー(︙) → 「アプリをインストール」。入れると 全画面で すぐ開けます。</p>
+    <button type="button" class="big" id="helpClose" style="margin-top:14px">とじる</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<canvas id="work" hidden></canvas>
+
+<script src="lib/jsQR.js"></script>
+<script>
+'use strict';
+/* =====================================================================
+   あんしんQR — QRコードを読んで「どこへ行くか」を先に見せる、広告なしのリーダー
+   方針: 余計なことをしない / 勝手に開かない / どこにも送らない / 大きな字・大きなボタン
+   部品:
+     Parse  … 読んだ文字を「ホームページ / Wi-Fi / 名刺 / 電話 / メール / SMS / 場所 / 文字」に分けて、危ない所がないか調べる(純粋な関数。テスト可)
+     Camera … カメラを動かして、毎フレーム QR を探す(BarcodeDetector があればそれ、なければ jsQR)
+     UI     … 画面の切り替え・結果の表示・履歴
+   ===================================================================== */
+const CONFIG = {
+  HISTORY_MAX: 20,
+  DECODE_INTERVAL_MS: 110,      // 何ミリ秒ごとに QR を探すか(電池と速さのバランス)
+  WORK_MAX: 800,                // QR を探すときの絵の最大の大きさ(px)。大きいほど遅い
+  ZOOM_MAX: 3,
+  SHORTENERS: ['bit.ly', 't.co', 'tinyurl.com', 'goo.gl', 'ow.ly', 'is.gd', 'buff.ly', 'cutt.ly', 'rebrand.ly', 's.id', 'qr.ae', 'lnkd.in', 'x.gd', 'onl.la', 'onl.bz', 'onl.sc', 'nav.cx', 'urx.red', 'urx2.nu', 'urx3.nu', '00m.in', 'ur0.jp', 'ur2.link', 'qrco.de', 'qrcodes.pro', 'me-qr.com', 'qrfy.io', 'qrfy.com', 'qr.page', 'qr1.be', 'app.qr-code-generator.com', 'qr-code-generator.com', 'tinyurl.jp', 'shorturl.at', 'rb.gy', 't.ly', 'short.io', 'bl.ink', 'snip.ly', 'u.nu', 'v.gd', 'tiny.cc', 'page.link'],
+  // 登録ドメイン(例: line.me)が完全に一致したときだけ「よく知られたサービス」と出す(似せた名前は一致しない)
+  SERVICES: { 'line.me': 'LINE', 'lin.ee': 'LINE 公式アカウント', 'paypay.ne.jp': 'PayPay', 'youtube.com': 'YouTube', 'youtu.be': 'YouTube', 'google.com': 'Google', 'goo.gl': 'Google(短縮)', 'instagram.com': 'Instagram', 'x.com': 'X(旧Twitter)', 'twitter.com': 'X(旧Twitter)', 'facebook.com': 'Facebook', 'amazon.co.jp': 'Amazon', 'rakuten.co.jp': '楽天', 'yahoo.co.jp': 'Yahoo! JAPAN', 'apple.com': 'Apple', 'kuronekoyamato.co.jp': 'ヤマト運輸', 'sagawa-exp.co.jp': '佐川急便', 'japanpost.jp': '日本郵便', 'post.japanpost.jp': '日本郵便', 'mercari.com': 'メルカリ', 'zoom.us': 'Zoom', 'microsoft.com': 'Microsoft', 'tabelog.com': '食べログ', 'hotpepper.jp': 'ホットペッパー', 'gnavi.co.jp': 'ぐるなび', 'uber.com': 'Uber', 'tiktok.com': 'TikTok', 'wikipedia.org': 'Wikipedia', 'myna.go.jp': 'マイナポータル', 'digital.go.jp': 'デジタル庁', 'nta.go.jp': '国税庁', 'mhlw.go.jp': '厚生労働省' },
+  // 有名な名前を「別のドメイン」の中に混ぜる手口(例: paypay.ne.jp.abc.xyz)を見つけるための表
+  BRANDS: { paypay: 'paypay.ne.jp', line: 'line.me', amazon: 'amazon.co.jp', rakuten: 'rakuten.co.jp', yahoo: 'yahoo.co.jp', google: 'google.com', apple: 'apple.com', docomo: 'docomo.ne.jp', softbank: 'softbank.jp', mufg: 'mufg.jp', smbc: 'smbc.co.jp', mizuho: 'mizuhobank.co.jp', japanpost: 'japanpost.jp', yamato: 'kuronekoyamato.co.jp', sagawa: 'sagawa-exp.co.jp', mercari: 'mercari.com', aeon: 'aeon.co.jp', microsoft: 'microsoft.com', instagram: 'instagram.com', facebook: 'facebook.com', youtube: 'youtube.com' },
+  // 2段のトップレベル(co.jp など)。登録ドメインを取り出すときに使う
+  TWO_LEVEL: ['co.jp', 'ne.jp', 'or.jp', 'ac.jp', 'go.jp', 'ed.jp', 'lg.jp', 'gr.jp', 'ad.jp', 'co.uk', 'org.uk', 'ac.uk', 'com.au', 'net.au', 'org.au', 'co.kr', 'com.tw', 'com.cn', 'com.hk', 'com.sg', 'com.br', 'co.nz', 'co.in', 'github.io', 'app.goo.gl'],
+};
+
+/* =============================== Parse =============================== */
+const Parse = (() => {
+  const unescapeVal = (s) => String(s || '').replace(/\\([\\;,:nN])/g, (m, c) => (c === 'n' || c === 'N') ? '\n' : c);
+  const zen2han = (s) => String(s || '').replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/[ー―－‐]/g, '-');
+  const cleanTel = (s) => zen2han(s).replace(/^tel:/i, '').replace(/[^\d+#*,;-]/g, '').replace(/-/g, '');
+  const prettyTel = (s) => {
+    const d = cleanTel(s);
+    if (/^0[5789]0\d{8}$/.test(d)) return d.replace(/^(\d{3})(\d{4})(\d{4})$/, '$1-$2-$3');   // 携帯・050
+    if (/^0(120|800)\d{6}$/.test(d)) return d.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1-$2-$3'); // フリーダイヤル
+    if (/^0[36]\d{8}$/.test(d)) return d.replace(/^(\d{2})(\d{4})(\d{4})$/, '$1-$2-$3');      // 東京・大阪
+    if (/^0\d{9}$/.test(d)) return d.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');          // そのほかの固定電話(市外局番3桁として)
+    return d;
+  };
+
+  /* 登録ドメイン(host → line.me / amazon.co.jp のような「持ち主の単位」) */
+  function registrable(host) {
+    host = String(host || '').toLowerCase().replace(/\.$/, '');
+    const p = host.split('.');
+    if (p.length <= 2) return host;
+    const last2 = p.slice(-2).join('.');
+    if (CONFIG.TWO_LEVEL.includes(last2)) return p.slice(-3).join('.');
+    return last2;
+  }
+
+  /* 「;」区切り・「:」でキーと値、の形(WIFI: / MECARD: / MATMSG:)をほどく。値の中の \; \, \: \\ は文字として扱う */
+  function splitFields(body) {
+    const out = [];
+    let key = '', val = '', inVal = false;
+    for (let i = 0; i < body.length; i++) {
+      const c = body[i];
+      if (c === '\\' && i + 1 < body.length) { (inVal ? (val += body[i + 1]) : (key += body[i + 1])); i++; continue; }
+      if (!inVal) { if (c === ':') inVal = true; else if (c === ';') { key = ''; } else key += c; continue; }
+      if (c === ';') { out.push([key.trim().toUpperCase(), val]); key = ''; val = ''; inVal = false; continue; }
+      val += c;
+    }
+    if (key || val) out.push([key.trim().toUpperCase(), val]);
+    return out;
+  }
+
+  function parseWifi(text) {
+    const f = splitFields(text.replace(/^WIFI:/i, ''));
+    const get = (k) => (f.find((x) => x[0] === k) || [])[1] || '';
+    const type = get('T').toUpperCase() || 'nopass';
+    return { kind: 'wifi', ssid: get('S'), pass: get('P'), type, hidden: /^true$/i.test(get('H')), open: !get('P') || type === 'NOPASS' };
+  }
+
+  function decodeQP(s, charset) {
+    const bytes = [];
+    s = s.replace(/=\r?\n/g, '');
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] === '=' && /^[0-9A-Fa-f]{2}$/.test(s.substr(i + 1, 2))) { bytes.push(parseInt(s.substr(i + 1, 2), 16)); i += 2; }
+      else bytes.push(s.charCodeAt(i) & 255);
+    }
+    try { return new TextDecoder(charset || 'utf-8').decode(Uint8Array.from(bytes)); } catch (e) { return s; }
+  }
+
+  function parseVcard(text) {
+    const lines = text.replace(/\r\n?/g, '\n').split('\n').reduce((acc, l) => { if (/^[ \t]/.test(l) && acc.length) acc[acc.length - 1] += l.slice(1); else acc.push(l); return acc; }, []);
+    const c = { kind: 'contact', name: '', kana: '', org: '', title: '', tels: [], emails: [], urls: [], adrs: [], note: '' };
+    let n = null;
+    for (const line of lines) {
+      const i = line.indexOf(':'); if (i < 0) continue;
+      const head = line.slice(0, i), raw = line.slice(i + 1);
+      const parts = head.split(';'); const prop = parts[0].toUpperCase().replace(/^ITEM\d+\./i, '');
+      const params = {}; parts.slice(1).forEach((p) => { const [k, v] = p.split('='); params[(k || '').toUpperCase()] = v === undefined ? 'TYPE' : v.toUpperCase(); if (v === undefined) params['TYPE'] = (params['TYPE'] && params['TYPE'] !== 'TYPE' ? params['TYPE'] + ',' : '') + k.toUpperCase(); });
+      let val = /QUOTED-PRINTABLE/i.test(params.ENCODING || '') ? decodeQP(raw, params.CHARSET) : raw;
+      const uv = (s) => unescapeVal(s).trim();
+      const typeLabel = (params.TYPE || '').split(',').map((t) => ({ CELL: '携帯', MOBILE: '携帯', HOME: '自宅', WORK: '会社', FAX: 'FAX', VOICE: '', PREF: '', INTERNET: '' }[t] ?? '')).filter(Boolean).join('・');
+      switch (prop) {
+        case 'FN': c.name = c.name || uv(val); break;
+        case 'N': n = val.split(';').map(uv); break;
+        case 'ORG': c.org = uv(val).replace(/;+$/, '').replace(/;/g, ' '); break;
+        case 'TITLE': c.title = uv(val); break;
+        case 'TEL': if (cleanTel(val)) c.tels.push({ v: uv(val), label: typeLabel }); break;
+        case 'EMAIL': if (uv(val)) c.emails.push({ v: uv(val), label: typeLabel }); break;
+        case 'URL': if (uv(val)) c.urls.push(uv(val)); break;
+        case 'ADR': { const a = val.split(';').map(uv); const s = [a[5], a[4], a[3], a[2], a[1], a[0]].filter(Boolean); if (s.length) c.adrs.push({ v: (a[5] ? '〒' + a[5] + ' ' : '') + [a[4], a[3], a[2], a[1], a[0]].filter(Boolean).join(' '), label: typeLabel }); break; }
+        case 'NOTE': c.note = uv(val); break;
+        case 'SOUND': case 'X-PHONETIC-LAST-NAME': case 'X-PHONETIC-FIRST-NAME': c.kana = (c.kana + ' ' + uv(val).replace(/;/g, ' ')).trim(); break;
+      }
+    }
+    if (!c.name && n) c.name = [n[3], n[0], n[1], n[2], n[4]].filter(Boolean).join(' ');
+    return c;
+  }
+
+  function parseMecard(text) {
+    const f = splitFields(text.replace(/^MECARD:/i, ''));
+    const c = { kind: 'contact', name: '', kana: '', org: '', title: '', tels: [], emails: [], urls: [], adrs: [], note: '' };
+    for (const [k, v] of f) {
+      switch (k) {
+        case 'N': c.name = v.split(',').filter(Boolean).join(' '); break;
+        case 'SOUND': c.kana = v.split(',').filter(Boolean).join(' '); break;
+        case 'TEL': case 'TEL-AV': if (cleanTel(v)) c.tels.push({ v, label: '' }); break;
+        case 'EMAIL': if (v) c.emails.push({ v, label: '' }); break;
+        case 'URL': if (v) c.urls.push(v); break;
+        case 'ADR': if (v) c.adrs.push({ v: v.split(',').filter(Boolean).join(' '), label: '' }); break;
+        case 'ORG': c.org = v; break;
+        case 'NOTE': c.note = v; break;
+      }
+    }
+    return c;
+  }
+
+  /* アドレスを調べる: どこへ行くか / 危ないしるし */
+  function analyzeUrl(raw) {
+    let s = String(raw).trim();
+    if (/^www\./i.test(s) || (!/^[a-z][a-z0-9+.-]*:/i.test(s) && /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(s))) s = 'https://' + s;
+    let u;
+    try { u = new URL(s); } catch (e) { return null; }
+    const scheme = u.protocol.replace(':', '').toLowerCase();
+    if (scheme !== 'http' && scheme !== 'https') return { kind: 'url', href: s, host: '', reg: '', service: '', blocked: true, warnings: [{ level: 'danger', text: '「' + scheme + ':」で始まる、ふつうのホームページではないアドレスです。安全のため、このアプリでは開きません。' }] };
+    const host = u.hostname.toLowerCase();
+    const reg = registrable(host);
+    const warnings = [];
+    if (scheme === 'http') warnings.push({ level: 'warn', text: '暗号化されていない(http)アドレスです。入力はしないでください。' });
+    if (u.username || u.password) warnings.push({ level: 'danger', text: 'アドレスの中に「@」があり、本当の行き先を隠す手口に使われます。' });
+    if (/^\d+\.\d+\.\d+\.\d+$/.test(host) || host.includes(':')) warnings.push({ level: 'danger', text: '名前ではなく数字だけのアドレス(IPアドレス)です。お店や会社ではまず使いません。' });
+    if (host.split('.').some((p) => p.startsWith('xn--'))) warnings.push({ level: 'danger', text: '見た目を似せた外国の文字が混ざったアドレス(xn--)です。' });
+    if (CONFIG.SHORTENERS.includes(reg) || CONFIG.SHORTENERS.includes(host)) warnings.push({ level: 'warn', text: '短縮アドレスで、本当の行き先が隠れています。開いたあとに出るアドレスも確かめてください。' });
+    for (const [brand, real] of Object.entries(CONFIG.BRANDS)) {
+      if (host.includes(brand) && reg !== real && !host.endsWith('.' + real)) { warnings.push({ level: 'danger', text: '「' + brand + '」という有名な名前が入っていますが、本物(' + real + ')とは別のアドレスです。' }); break; }
+    }
+    if (host.split('.').length >= 5) warnings.push({ level: 'warn', text: '「.」がとても多い、複雑なアドレスです。' });
+    if (s.length > 400) warnings.push({ level: 'warn', text: 'とても長いアドレスです。' });
+    const service = CONFIG.SERVICES[reg] || CONFIG.SERVICES[host] || '';
+    return { kind: 'url', href: u.href, host, reg, service, blocked: false, warnings };
+  }
+
+  function parse(text) {
+    const t = String(text ?? '').replace(/^﻿/, '').trim();
+    if (!t) return { kind: 'text', text: '' };
+    if (/^WIFI:/i.test(t)) return parseWifi(t);
+    if (/^BEGIN:VCARD/i.test(t)) return parseVcard(t);
+    if (/^MECARD:/i.test(t)) return parseMecard(t);
+    if (/^tel:/i.test(t)) { const n = cleanTel(t); return n ? { kind: 'tel', number: n, pretty: prettyTel(n) } : { kind: 'text', text: t }; }
+    if (/^sms(to)?:/i.test(t)) {
+      const body = t.replace(/^sms(to)?:/i, '');
+      let num, msg = '';
+      if (/^smsto:/i.test(t)) { const i = body.indexOf(':'); num = i < 0 ? body : body.slice(0, i); msg = i < 0 ? '' : body.slice(i + 1); }
+      else { const i = body.indexOf('?'); num = i < 0 ? body : body.slice(0, i); const q = new URLSearchParams(i < 0 ? '' : body.slice(i + 1)); msg = q.get('body') || ''; }
+      return { kind: 'sms', number: cleanTel(num), pretty: prettyTel(num), msg };
+    }
+    if (/^mailto:/i.test(t)) { const u = t.slice(7); const i = u.indexOf('?'); const q = new URLSearchParams(i < 0 ? '' : u.slice(i + 1)); return { kind: 'mail', to: decodeURIComponent(i < 0 ? u : u.slice(0, i)), subject: q.get('subject') || '', body: q.get('body') || '' }; }
+    if (/^MATMSG:/i.test(t)) { const f = splitFields(t.slice(7)); const g = (k) => (f.find((x) => x[0] === k) || [])[1] || ''; return { kind: 'mail', to: g('TO'), subject: g('SUB'), body: g('BODY') }; }
+    if (/^geo:/i.test(t)) { const m = t.match(/^geo:(-?[\d.]+),(-?[\d.]+)/i); if (m) return { kind: 'geo', lat: m[1], lng: m[2], href: 'https://www.google.com/maps?q=' + m[1] + ',' + m[2] }; }
+    if (/^BEGIN:VEVENT/i.test(t) || /^BEGIN:VCALENDAR/i.test(t)) { const g = (k) => (t.match(new RegExp('^' + k + '[^:]*:(.*)$', 'mi')) || [])[1] || ''; return { kind: 'event', summary: unescapeVal(g('SUMMARY')), start: g('DTSTART'), location: unescapeVal(g('LOCATION')), text: t }; }
+    if (/^[a-z][a-z0-9+.-]*:/i.test(t) && !/\s/.test(t)) { const a = analyzeUrl(t); if (a) return a; }
+    if (/^www\./i.test(t) || /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(t)) { const a = analyzeUrl(t); if (a && !a.blocked) return a; }
+    const digits = zen2han(t).replace(/[\s-]/g, '');
+    if (/^\+?0?\d{10,11}$/.test(digits) && /^[\d\s\-ー０-９+]+$/.test(t)) return { kind: 'tel', number: cleanTel(digits), pretty: prettyTel(digits) };
+    return { kind: 'text', text: t };
+  }
+
+  const KINDS = { url: ['🌐', 'ホームページ'], wifi: ['📶', 'Wi-Fi'], contact: ['👤', '名刺・連絡先'], tel: ['📞', '電話番号'], sms: ['💬', 'SMS(ショートメール)'], mail: ['✉️', 'メール'], geo: ['📍', '場所(地図)'], event: ['📅', '予定'], text: ['📝', '文字'] };
+  const summary = (r) => ({ url: () => r.host || r.href, wifi: () => r.ssid, contact: () => r.name || r.org || '(名前なし)', tel: () => r.pretty, sms: () => r.pretty, mail: () => r.to, geo: () => r.lat + ', ' + r.lng, event: () => r.summary || '予定', text: () => r.text.slice(0, 60) })[r.kind]();
+  return { parse, analyzeUrl, registrable, parseWifi, parseVcard, parseMecard, splitFields, prettyTel, cleanTel, KINDS, summary };
+})();
+window.QRParse = Parse;
+
+/* ============================ 小さな道具 ============================ */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let toastTimer = 0;
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 1800); }
+async function copyText(s) {
+  try { await navigator.clipboard.writeText(s); toast('コピーしました'); return true; }
+  catch (e) {
+    try { const ta = document.createElement('textarea'); ta.value = s; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.focus(); ta.select(); const ok = document.execCommand('copy'); ta.remove(); toast(ok ? 'コピーしました' : 'コピーできませんでした'); return ok; }
+    catch (e2) { toast('コピーできませんでした'); return false; }
+  }
+}
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 入らなくても動く */ } },
+};
+
+/* 読めたときの「ピッ」と ぶるっ */
+let audioCtx = null;
+let soundOn = store.get('qr.sound', true);
+function beep() {
+  if (!soundOn) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'sine'; o.frequency.value = 1320; g.gain.value = 0.0001;
+    o.connect(g); g.connect(audioCtx.destination);
+    const t = audioCtx.currentTime;
+    g.gain.exponentialRampToValueAtTime(0.25, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+    o.start(t); o.stop(t + 0.15);
+  } catch (e) { /* 鳴らなくても動く */ }
+}
+function buzz() { try { if (navigator.vibrate) navigator.vibrate(80); } catch (e) { /* なくてもよい */ } }
+function updateSoundBtn() { const b = $('soundBtn'); b.classList.toggle('on', soundOn); b.setAttribute('aria-pressed', soundOn ? 'true' : 'false'); b.innerHTML = soundOn ? '<b>🔔</b>音あり' : '<b>🔕</b>音なし'; }
+
+/* =============================== Camera =============================== */
+const Camera = (() => {
+  const video = $('video'), work = $('work'), ctx = work.getContext('2d', { willReadFrequently: true });
+  let stream = null, track = null, running = false, timer = 0, detector = null, detectorReady = false, zoom = 1, torchOn = false, onFound = null, busy = false;
+
+  async function makeDetector() {
+    if (detectorReady) return detector;
+    detectorReady = true;
+    try {
+      if ('BarcodeDetector' in window) {
+        const fmts = await window.BarcodeDetector.getSupportedFormats();
+        if (fmts.includes('qr_code')) detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+      }
+    } catch (e) { detector = null; }
+    return detector;
+  }
+
+  /* 今の映像から、拡大ぶんだけ真ん中を切り取って、作業用の絵に写す。返り値は 絵の大きさ */
+  function grab(source, sw, sh) {
+    const cw = Math.round(sw / zoom), ch = Math.round(sh / zoom);
+    const sx = Math.round((sw - cw) / 2), sy = Math.round((sh - ch) / 2);
+    const scale = Math.min(1, CONFIG.WORK_MAX / Math.max(cw, ch));
+    const w = Math.max(1, Math.round(cw * scale)), h = Math.max(1, Math.round(ch * scale));
+    if (work.width !== w || work.height !== h) { work.width = w; work.height = h; }
+    ctx.drawImage(source, sx, sy, cw, ch, 0, 0, w, h);
+    return { w, h };
+  }
+
+  /* 絵の中から QR を探す。見つかれば {text, bytes} / なければ null */
+  async function decodeCanvas(w, h, tryBoth) {
+    if (detector) {
+      try { const r = await detector.detect(work); if (r && r.length && r[0].rawValue) return { text: r[0].rawValue }; } catch (e) { /* jsQR に任せる */ }
+    }
+    if (typeof jsQR !== 'function') return null;
+    const img = ctx.getImageData(0, 0, w, h);
+    const code = jsQR(img.data, w, h, { inversionAttempts: tryBoth ? 'attemptBoth' : 'dontInvert' });
+    if (!code) return null;
+    return { text: textOf(code) };
+  }
+
+  /* jsQR は UTF-8 でない字(昔の Shift_JIS の名刺など)を読めずに空にするので、その部分だけ Shift_JIS として読み直す */
+  function textOf(code) {
+    if (!code.chunks || !code.chunks.length) return code.data;
+    let out = '';
+    for (const ch of code.chunks) {
+      if (ch.type === 'byte' && !ch.text && ch.bytes && ch.bytes.length) {
+        try { out += new TextDecoder('shift_jis').decode(Uint8Array.from(ch.bytes)); } catch (e) { out += ch.text || ''; }
+      } else out += ch.text || '';
+    }
+    return out || code.data;
+  }
+
+  let tick = 0;
+  async function loop() {
+    if (!running) return;
+    if (busy) return;
+    busy = true;
+    try {
+      if (video.readyState >= 2 && video.videoWidth) {
+        const { w, h } = grab(video, video.videoWidth, video.videoHeight);
+        const r = await decodeCanvas(w, h, (tick++ % 3) === 0);
+        if (r && r.text && running) { running = false; busy = false; onFound && onFound(r.text); return; }
+      }
+    } catch (e) { /* 1回の失敗で止まらない */ }
+    busy = false;
+    if (running) timer = setTimeout(loop, CONFIG.DECODE_INTERVAL_MS);
+  }
+
+  function applyZoom(z) {
+    zoom = Math.min(CONFIG.ZOOM_MAX, Math.max(1, z));
+    video.style.transform = zoom === 1 ? '' : 'scale(' + zoom + ')';
+  }
+
+  async function setTorch(on) {
+    if (!track) return false;
+    try { await track.applyConstraints({ advanced: [{ torch: !!on }] }); torchOn = !!on; return true; } catch (e) { return false; }
+  }
+  function torchSupported() {
+    try { const c = track && track.getCapabilities ? track.getCapabilities() : null; return !!(c && c.torch); } catch (e) { return false; }
+  }
+
+  async function start(found) {
+    onFound = found;
+    stop();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw Object.assign(new Error('nomedia'), { name: 'NoMediaDevices' });
+    await makeDetector();
+    const tries = [
+      { audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } },
+      { audio: false, video: { facingMode: 'environment' } },
+      { audio: false, video: true },
+    ];
+    let lastErr = null;
+    for (const c of tries) {
+      try { stream = await navigator.mediaDevices.getUserMedia(c); lastErr = null; break; }
+      catch (e) { lastErr = e; if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) break; }
+    }
+    if (!stream) throw lastErr || new Error('camera');
+    track = stream.getVideoTracks()[0];
+    video.srcObject = stream;
+    try { await video.play(); } catch (e) { /* autoplay 属性で動くことが多い */ }
+    running = true; busy = false; torchOn = false;
+    timer = setTimeout(loop, 200);
+  }
+
+  function stop() {
+    running = false; clearTimeout(timer);
+    if (stream) { try { stream.getTracks().forEach((t) => t.stop()); } catch (e) { /* */ } }
+    stream = null; track = null; torchOn = false;
+    try { video.srcObject = null; } catch (e) { /* */ }
+  }
+
+  /* 画像ファイルから読む(スクショなど)。見つからなければ null */
+  async function decodeImage(file) {
+    await makeDetector();
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('image')); i.src = url; });
+      const savedZoom = zoom; zoom = 1;
+      const savedMax = CONFIG.WORK_MAX;
+      // 大きい写真は 縮めてから。見つからなければ 大きめでもう一度
+      for (const max of [1000, 1600]) {
+        CONFIG.WORK_MAX = max;
+        const { w, h } = grab(img, img.naturalWidth, img.naturalHeight);
+        const r = await decodeCanvas(w, h, true);
+        if (r && r.text) { CONFIG.WORK_MAX = savedMax; zoom = savedZoom; return r.text; }
+        if (Math.max(img.naturalWidth, img.naturalHeight) <= max) break;
+      }
+      CONFIG.WORK_MAX = savedMax; zoom = savedZoom;
+      return null;
+    } finally { URL.revokeObjectURL(url); }
+  }
+
+  return { start, stop, applyZoom, setTorch, torchSupported, decodeImage, isRunning: () => running, isTorchOn: () => torchOn, usingNative: () => !!detector };
+})();
+
+/* ================================ UI ================================ */
+const UI = (() => {
+  let current = null;        // いま結果に出している {text, at}
+  let history = store.get('qr.history', []);
+  if (!Array.isArray(history)) history = [];
+
+  function show(view) {
+    document.querySelectorAll('.view').forEach((v) => v.classList.toggle('on', v.id === view));
+    window.scrollTo(0, 0);
+  }
+
+  function setCover(msg, showStart) {
+    const c = $('cover');
+    if (msg === null) { c.classList.remove('on'); return; }
+    c.classList.add('on'); $('coverMsg').innerHTML = msg; $('startBtn').classList.toggle('hidden', !showStart);
+  }
+
+  function cameraErrorMessage(e) {
+    const name = (e && e.name) || '';
+    const inLine = /\bLine\//i.test(navigator.userAgent);
+    if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError')
+      return 'カメラの使用が許可されていません。<br><b>iPhone:</b> 設定 → アプリ → Safari → カメラ を「許可」に<br><b>Android:</b> アドレスの左の 🔒 → 権限 → カメラ を「許可」に<br>そのあと「カメラを始める」を押してください。' + (inLine ? '<br><br>LINE の中なら、Safari や Chrome で開き直してください。' : '');
+    if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'OverconstrainedError') return 'カメラが見つかりませんでした。「🖼 写真から読む」は使えます。';
+    if (name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError') return 'ほかのアプリがカメラを使っているか、一時的に使えません。ほかのアプリを閉じて「カメラを始める」を押してください。';
+    if (name === 'NoMediaDevices') return 'このブラウザでは カメラが使えません。' + (location.protocol === 'http:' && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'https のアドレスで開いてください。' : inLine ? 'メニューから Safari や Chrome で開き直してください。' : '「🖼 写真から読む」は使えます。');
+    return 'カメラを始められませんでした(' + esc(name || (e && e.message) || '不明') + ')。「カメラを始める」で もう一度 試せます。';
+  }
+
+  async function startCamera() {
+    setCover('カメラを起動しています…', false);
+    $('torchBtn').disabled = true;
+    $('scanMsg').textContent = 'QRコードを わくの中に 入れてください';
+    try {
+      await Camera.start(onFound);
+      setCover(null);
+      const t = Camera.torchSupported();
+      $('torchBtn').disabled = !t;
+      $('torchBtn').innerHTML = '💡 ライト<small>' + (t ? '暗いところで' : 'このカメラでは使えません') + '</small>';
+      $('torchBtn').classList.remove('on');
+    } catch (e) {
+      setCover(cameraErrorMessage(e), true);
+    }
+  }
+
+  function onFound(text) {
+    buzz(); beep();
+    const f = $('flash'); f.classList.add('on'); setTimeout(() => f.classList.remove('on'), 60);
+    Camera.stop();
+    $('torchBtn').classList.remove('on');
+    openResult(text, Date.now(), true);
+  }
+
+  /* ---------- 結果の表示 ---------- */
+  function openResult(text, at, addToHistory) {
+    current = { text, at };
+    if (addToHistory) {
+      history = [{ text, at }].concat(history.filter((h) => h.text !== text)).slice(0, CONFIG.HISTORY_MAX);
+      store.set('qr.history', history); renderHistory();
+    }
+    const r = Parse.parse(text);
+    const [icon, name] = Parse.KINDS[r.kind] || Parse.KINDS.text;
+    $('kindIcon').textContent = icon; $('kindName').textContent = name;
+    const paper = $('paper'), acts = $('actions'), check = $('checkBox');
+    paper.innerHTML = ''; acts.innerHTML = ''; check.className = 'check hidden'; check.innerHTML = '';
+    const btn = (label, cls, attrs, sub) => '<a class="big ' + cls + '" ' + attrs + '>' + label + (sub ? '<small>' + sub + '</small>' : '') + '</a>';
+    const copyBtn = (s, label) => '<button type="button" class="big sub" data-copy="' + esc(s) + '">📋 ' + (label || 'コピーする') + '</button>';
+    const shareBtn = (s) => (navigator.share ? '<button type="button" class="big ghost" data-share="' + esc(s) + '">📤 LINEなどで送る</button>' : '');
+    const fullText = '<p class="lbl" style="margin-top:10px">読み取った全文</p><pre class="full">' + esc(text) + '</pre>';
+
+    switch (r.kind) {
+      case 'url': {
+        const danger = r.warnings.some((w) => w.level === 'danger'), warn = r.warnings.length > 0;
+        check.className = 'check ' + (r.blocked || danger ? 'danger' : warn ? 'warn' : 'ok');
+        check.innerHTML = (r.blocked ? '<div class="t">⛔ このアドレスは開きません</div>' : danger ? '<div class="t">⚠️ あやしい所があります。開かないことをおすすめします</div>' : warn ? '<div class="t">⚠️ 気をつける所があります</div>' : '<div class="t">✅ あやしい所は見つかりませんでした</div><div>行き先が お店や相手の名前と合っているか 確かめてから開いてください。</div>')
+          + (r.warnings.length ? '<ul>' + r.warnings.map((w) => '<li>' + esc(w.text) + '</li>').join('') + '</ul>' : '');
+        paper.innerHTML = (r.service ? '<span class="service">✅ よく知られたサービス: ' + esc(r.service) + '</span>' : '')
+          + '<p class="lbl">行き先</p><p class="main">' + esc(r.host || '(なし)') + '</p><p class="lbl">アドレスの全文</p><pre class="full">' + esc(r.href) + '</pre>';
+        if (!r.blocked) acts.innerHTML = btn((danger ? '⚠️ それでも開く' : '🌐 開く'), danger ? 'ghost' : '', 'href="' + esc(r.href) + '" target="_blank" rel="noopener noreferrer"', r.service ? r.service + ' を開きます' : '') + copyBtn(r.href, 'アドレスをコピー') + (danger ? '' : shareBtn(r.href));
+        else acts.innerHTML = copyBtn(text, '内容をコピー');
+        break;
+      }
+      case 'wifi': {
+        paper.innerHTML = '<div class="field"><p class="lbl">Wi-Fi の名前(ネットワーク名)</p><div class="v">' + esc(r.ssid) + '</div></div>'
+          + (r.open ? '<div class="field"><div class="v"><small>パスワードなし(そのまま つなげます)</small></div></div>'
+            : '<div class="field"><p class="lbl">パスワード</p><div class="v mono">' + esc(r.pass) + '</div></div>')
+          + (r.hidden ? '<div class="field"><div class="v"><small>かくれたネットワーク(一覧に出ません。名前を手で入れます)</small></div></div>' : '');
+        acts.innerHTML = (r.open ? '' : copyBtn(r.pass, 'パスワードをコピー'))
+          + '<p class="note">つなぎ方: 設定 → Wi-Fi で「<b>' + esc(r.ssid) + '</b>」を選び、コピーしたパスワードを貼り付けます。</p>';
+        break;
+      }
+      case 'contact': {
+        let h = '';
+        if (r.name) h += '<div class="field"><p class="lbl">名前</p><div class="v" style="font-size:28px">' + esc(r.name) + (r.kana ? '<br><small>' + esc(r.kana) + '</small>' : '') + '</div></div>';
+        if (r.org || r.title) h += '<div class="field"><p class="lbl">会社・肩書</p><div class="v">' + esc([r.org, r.title].filter(Boolean).join(' ')) + '</div></div>';
+        r.tels.forEach((t) => { h += '<div class="field"><p class="lbl">電話' + (t.label ? '(' + esc(t.label) + ')' : '') + '</p><div class="v">' + esc(Parse.prettyTel(t.v)) + '</div><a class="mini" href="tel:' + esc(Parse.cleanTel(t.v)) + '">📞 電話をかける</a><button type="button" class="mini white" data-copy="' + esc(Parse.cleanTel(t.v)) + '">📋 コピー</button></div>'; });
+        r.emails.forEach((m) => { h += '<div class="field"><p class="lbl">メール' + (m.label ? '(' + esc(m.label) + ')' : '') + '</p><div class="v">' + esc(m.v) + '</div><a class="mini" href="mailto:' + esc(m.v) + '">✉️ メールを書く</a><button type="button" class="mini white" data-copy="' + esc(m.v) + '">📋 コピー</button></div>'; });
+        r.urls.forEach((u) => { const a = Parse.analyzeUrl(u); h += '<div class="field"><p class="lbl">ホームページ</p><div class="v" style="font-size:18px;word-break:break-all">' + esc(u) + '</div>' + (a && !a.blocked ? '<a class="mini" href="' + esc(a.href) + '" target="_blank" rel="noopener noreferrer">🌐 開く</a>' : '') + '</div>'; });
+        r.adrs.forEach((a) => { h += '<div class="field"><p class="lbl">住所' + (a.label ? '(' + esc(a.label) + ')' : '') + '</p><div class="v" style="font-size:19px">' + esc(a.v) + '</div><a class="mini" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(a.v) + '" target="_blank" rel="noopener noreferrer">📍 地図で見る</a></div>'; });
+        if (r.note) h += '<div class="field"><p class="lbl">メモ</p><div class="v" style="font-size:18px">' + esc(r.note) + '</div></div>';
+        if (!h) h = '<div class="field"><div class="v">読み取れる項目がありませんでした</div></div>' + fullText;
+        paper.innerHTML = h;
+        acts.innerHTML = '<button type="button" class="big" id="saveContact">👤 連絡先に保存<small>電話帳(連絡先アプリ)に入れます</small></button>' + copyBtn(text, '全文をコピー');
+        break;
+      }
+      case 'tel':
+        paper.innerHTML = '<p class="lbl">電話番号</p><p class="main">' + esc(r.pretty) + '</p>';
+        acts.innerHTML = btn('📞 電話をかける', 'green', 'href="tel:' + esc(r.number) + '"', '押すと 発信の確認が出ます') + copyBtn(r.number, '番号をコピー');
+        break;
+      case 'sms':
+        paper.innerHTML = '<p class="lbl">送り先</p><p class="main">' + esc(r.pretty) + '</p>' + (r.msg ? '<p class="lbl">本文</p><pre class="full">' + esc(r.msg) + '</pre>' : '');
+        acts.innerHTML = btn('💬 SMS を書く', 'green', 'href="sms:' + esc(r.number) + (r.msg ? (/iPhone|iPad|iPod/.test(navigator.userAgent) ? '&' : '?') + 'body=' + encodeURIComponent(r.msg) : '') + '"') + copyBtn(r.number, '番号をコピー');
+        break;
+      case 'mail': {
+        const q = []; if (r.subject) q.push('subject=' + encodeURIComponent(r.subject)); if (r.body) q.push('body=' + encodeURIComponent(r.body));
+        paper.innerHTML = '<p class="lbl">宛先</p><p class="main mid">' + esc(r.to) + '</p>' + (r.subject ? '<p class="lbl">件名</p><div class="field"><div class="v">' + esc(r.subject) + '</div></div>' : '') + (r.body ? '<p class="lbl">本文</p><pre class="full">' + esc(r.body) + '</pre>' : '');
+        acts.innerHTML = btn('✉️ メールを書く', 'green', 'href="mailto:' + esc(r.to) + (q.length ? '?' + q.join('&') : '') + '"') + copyBtn(r.to, '宛先をコピー');
+        break;
+      }
+      case 'geo':
+        paper.innerHTML = '<p class="lbl">場所(緯度, 経度)</p><p class="main mid">' + esc(r.lat + ', ' + r.lng) + '</p>';
+        acts.innerHTML = btn('📍 地図で見る', '', 'href="' + esc(r.href) + '" target="_blank" rel="noopener noreferrer"', 'Google マップで開きます');
+        break;
+      case 'event':
+        paper.innerHTML = '<p class="lbl">予定</p><p class="main mid">' + esc(r.summary || '(名前なし)') + '</p>' + (r.start ? '<div class="field"><p class="lbl">日時</p><div class="v">' + esc(r.start.replace(/^(\d{4})(\d{2})(\d{2})T?(\d{2})?(\d{2})?.*$/, (m, y, mo, d, hh, mm) => y + '/' + mo + '/' + d + (hh ? ' ' + hh + ':' + mm : ''))) + '</div></div>' : '') + (r.location ? '<div class="field"><p class="lbl">場所</p><div class="v">' + esc(r.location) + '</div></div>' : '') + fullText;
+        acts.innerHTML = copyBtn(text, '全文をコピー');
+        break;
+      default: {
+        const hasUrl = /https?:\/\/\S+/i.exec(r.text);
+        paper.innerHTML = '<p class="lbl">書いてある文字</p><pre class="full" style="max-height:none;font-size:20px;font-family:inherit;font-weight:700">' + esc(r.text) + '</pre>';
+        acts.innerHTML = copyBtn(r.text, '文字をコピー') + shareBtn(r.text) + (hasUrl ? '<p class="note">文字の中にアドレスがあります。開くなら、コピーしてブラウザに貼ってください。</p>' : '');
+      }
+    }
+    acts.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => copyText(b.getAttribute('data-copy'))));
+    paper.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => copyText(b.getAttribute('data-copy'))));
+    acts.querySelectorAll('[data-share]').forEach((b) => b.addEventListener('click', async () => { try { await navigator.share({ text: b.getAttribute('data-share') }); } catch (e) { /* やめただけ */ } }));
+    const sc = $('saveContact'); if (sc) sc.addEventListener('click', () => saveContact(r, text));
+    show('result');
+  }
+
+  /* 連絡先に保存: vCard のファイルを作って、共有(iPhone は「連絡先」が出る)か ダウンロード */
+  async function saveContact(r, text) {
+    const vcf = /^BEGIN:VCARD/i.test(text.trim()) ? text : [
+      'BEGIN:VCARD', 'VERSION:3.0', 'N:' + (r.name || '').replace(/\s+/, ';') + ';;;', 'FN:' + (r.name || ''),
+      r.kana ? 'X-PHONETIC-LAST-NAME:' + r.kana : '', r.org ? 'ORG:' + r.org : '', r.title ? 'TITLE:' + r.title : '',
+      ...r.tels.map((t) => 'TEL;TYPE=' + (t.label === '携帯' ? 'CELL' : 'VOICE') + ':' + Parse.cleanTel(t.v)), ...r.emails.map((m) => 'EMAIL:' + m.v), ...r.urls.map((u) => 'URL:' + u),
+      ...r.adrs.map((a) => 'ADR;TYPE=WORK:;;' + a.v + ';;;;'), r.note ? 'NOTE:' + r.note : '', 'END:VCARD'].filter(Boolean).join('\r\n');
+    const fname = ((r.name || 'contact').replace(/[\\/:*?"<>|]/g, '').slice(0, 40) || 'contact') + '.vcf';
+    const file = new File([vcf], fname, { type: 'text/vcard' });
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: r.name || '連絡先' }); toast('出てきた一覧から「連絡先」を選んでください'); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([vcf], { type: 'text/vcard' })); a.download = fname; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    toast('ファイルを保存しました。開くと連絡先に入ります');
+  }
+
+  /* ---------- 履歴 ---------- */
+  function renderHistory() {
+    const list = $('histList');
+    if (!history.length) { list.innerHTML = '<p class="empty">まだありません。読み取ると ここに残ります(このスマホの中だけ)。</p>'; return; }
+    list.innerHTML = history.map((h, i) => {
+      let r; try { r = Parse.parse(h.text); } catch (e) { r = { kind: 'text', text: h.text }; }
+      const [icon, name] = Parse.KINDS[r.kind] || Parse.KINDS.text;
+      const d = new Date(h.at); const when = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+      return '<button type="button" class="item" data-i="' + i + '"><b>' + icon + '</b><span>' + esc(Parse.summary(r)) + '<br><small>' + name + '</small></span><small>' + when + '</small></button>';
+    }).join('');
+    list.querySelectorAll('.item').forEach((b) => b.addEventListener('click', () => { const h = history[+b.getAttribute('data-i')]; if (h) { Camera.stop(); openResult(h.text, h.at, false); } }));
+  }
+
+  /* ---------- 画面の部品 ---------- */
+  function init() {
+    if (/\bLine\//i.test(navigator.userAgent)) $('lineBanner').classList.add('on');
+    updateSoundBtn(); renderHistory();
+    $('soundBtn').addEventListener('click', () => { soundOn = !soundOn; store.set('qr.sound', soundOn); updateSoundBtn(); if (soundOn) beep(); });
+    $('helpBtn').addEventListener('click', () => $('help').classList.add('on'));
+    $('helpClose').addEventListener('click', () => $('help').classList.remove('on'));
+    $('help').addEventListener('click', (e) => { if (e.target === $('help')) $('help').classList.remove('on'); });
+    $('startBtn').addEventListener('click', () => { beep && audioCtx === null && soundOn && (() => { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { /* */ } })(); startCamera(); });
+    $('againBtn').addEventListener('click', () => { show('scan'); startCamera(); });
+    $('torchBtn').addEventListener('click', async () => { const ok = await Camera.setTorch(!Camera.isTorchOn()); if (ok) $('torchBtn').classList.toggle('on', Camera.isTorchOn()); else toast('ライトをつけられませんでした'); });
+    $('zoom').addEventListener('input', () => { const z = parseFloat($('zoom').value); Camera.applyZoom(z); $('zoomVal').textContent = z.toFixed(1) + '倍'; });
+    $('zoomBox').classList.add('on');
+    $('fileBtn').addEventListener('click', () => $('file').click());
+    $('file').addEventListener('change', async () => {
+      const f = $('file').files && $('file').files[0]; $('file').value = '';
+      if (!f) return;
+      $('scanMsg').textContent = '写真の中を さがしています…';
+      try {
+        const text = await Camera.decodeImage(f);
+        if (text) { Camera.stop(); buzz(); beep(); openResult(text, Date.now(), true); }
+        else { toast('QRコードが見つかりませんでした'); $('scanMsg').textContent = 'QRコードが見つかりませんでした。QRが大きく はっきり写った写真で もう一度'; }
+      } catch (e) { toast('写真を読めませんでした'); $('scanMsg').textContent = 'この写真は読めませんでした'; }
+    });
+    $('clearHist').addEventListener('click', () => { if (!history.length) return; if (confirm('「さいきん読んだもの」を すべて消しますか?')) { history = []; store.set('qr.history', history); renderHistory(); toast('消しました'); } });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { if (Camera.isRunning()) { Camera.stop(); Camera._paused = true; } }
+      else if (Camera._paused && $('scan').classList.contains('on')) { Camera._paused = false; startCamera(); }
+    });
+    // 確認用: アドレスの末尾に #test=<文字> で、カメラなしで結果画面を見られる
+    const m = location.hash.match(/^#test=(.*)$/);
+    if (m) { try { openResult(decodeURIComponent(m[1]), Date.now(), false); return; } catch (e) { /* */ } }
+    startCamera();
+  }
+  return { init, openResult };
+})();
+window.QRUI = UI;
+
+document.addEventListener('DOMContentLoaded', UI.init);
+if ('serviceWorker' in navigator && location.protocol === 'https:') { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => { /* なくても動く */ }); }); }
+</script>
+</body>
+</html>
