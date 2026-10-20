@@ -68,6 +68,7 @@
   .big.green { background: var(--green); color: #fff; }
   .big.sub { background: #fff; color: var(--ink); font-size: 19px; }
   .big.ghost { background: #3a2a66; color: #fff; font-size: 19px; }
+  .big.again { background: var(--yellow-light); color: var(--ink); }
   .big:disabled { opacity: .45; cursor: default; }
   .big + .big { margin-top: 10px; }
   .big small { display: block; font-size: 14px; font-weight: 800; margin-top: 2px; }
@@ -170,7 +171,7 @@
   <div id="checkBox" class="check ok"></div>
   <div class="paper" id="paper"></div>
   <div id="actions"></div>
-  <button type="button" class="big green" id="againBtn" style="margin-top:14px">📷 もう一度 読む</button>
+  <button type="button" class="big again" id="againBtn" style="margin-top:14px">📷 もう一度 読む</button>
 </section>
 
 <footer>あんしんQR v1.0 ・ 無料・広告なし ・ <a href="https://github.com/roguepink/QR" style="color:inherit">しくみ</a></footer>
@@ -630,7 +631,7 @@ const UI = (() => {
     paper.innerHTML = ''; acts.innerHTML = ''; check.className = 'check hidden'; check.innerHTML = '';
     const btn = (label, cls, attrs, sub) => '<a class="big ' + cls + '" ' + attrs + '>' + label + (sub ? '<small>' + sub + '</small>' : '') + '</a>';
     const copyBtn = (s, label) => '<button type="button" class="big sub" data-copy="' + esc(s) + '">📋 ' + (label || 'コピーする') + '</button>';
-    const shareBtn = (s) => (navigator.share ? '<button type="button" class="big ghost" data-share="' + esc(s) + '">📤 LINEなどで送る</button>' : '');
+    const shareBtn = (s) => (navigator.share ? '<button type="button" class="big green" data-share="' + esc(s) + '">📤 LINEなどで送る</button>' : '');
     const fullText = '<p class="lbl" style="margin-top:10px">読み取った全文</p><pre class="full">' + esc(text) + '</pre>';
 
     switch (r.kind) {
@@ -670,16 +671,16 @@ const UI = (() => {
       }
       case 'tel':
         paper.innerHTML = '<p class="lbl">電話番号</p><p class="main">' + esc(r.pretty) + '</p>';
-        acts.innerHTML = btn('📞 電話をかける', 'green', 'href="tel:' + esc(r.number) + '"', '押すと 発信の確認が出ます') + copyBtn(r.number, '番号をコピー');
+        acts.innerHTML = btn('📞 電話をかける', '', 'href="tel:' + esc(r.number) + '"', '押すと 発信の確認が出ます') + copyBtn(r.number, '番号をコピー');
         break;
       case 'sms':
         paper.innerHTML = '<p class="lbl">送り先</p><p class="main">' + esc(r.pretty) + '</p>' + (r.msg ? '<p class="lbl">本文</p><pre class="full">' + esc(r.msg) + '</pre>' : '');
-        acts.innerHTML = btn('💬 SMS を書く', 'green', 'href="sms:' + esc(r.number) + (r.msg ? (/iPhone|iPad|iPod/.test(navigator.userAgent) ? '&' : '?') + 'body=' + encodeURIComponent(r.msg) : '') + '"') + copyBtn(r.number, '番号をコピー');
+        acts.innerHTML = btn('💬 SMS を書く', '', 'href="sms:' + esc(r.number) + (r.msg ? (/iPhone|iPad|iPod/.test(navigator.userAgent) ? '&' : '?') + 'body=' + encodeURIComponent(r.msg) : '') + '"') + copyBtn(r.number, '番号をコピー');
         break;
       case 'mail': {
         const q = []; if (r.subject) q.push('subject=' + encodeURIComponent(r.subject)); if (r.body) q.push('body=' + encodeURIComponent(r.body));
         paper.innerHTML = '<p class="lbl">宛先</p><p class="main mid">' + esc(r.to) + '</p>' + (r.subject ? '<p class="lbl">件名</p><div class="field"><div class="v">' + esc(r.subject) + '</div></div>' : '') + (r.body ? '<p class="lbl">本文</p><pre class="full">' + esc(r.body) + '</pre>' : '');
-        acts.innerHTML = btn('✉️ メールを書く', 'green', 'href="mailto:' + esc(r.to) + (q.length ? '?' + q.join('&') : '') + '"') + copyBtn(r.to, '宛先をコピー');
+        acts.innerHTML = btn('✉️ メールを書く', '', 'href="mailto:' + esc(r.to) + (q.length ? '?' + q.join('&') : '') + '"') + copyBtn(r.to, '宛先をコピー');
         break;
       }
       case 'geo':
