@@ -21,21 +21,21 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-  :root { color-scheme: dark; --bg: #140c2a; --card: #241449; --ink: #1b1430; --yellow: #ffe066; --green: #06c755; --red: #ff6b6b; --orange: #ffb347;
+  :root { color-scheme: dark; --bg: #140c2a; --card: #241449; --ink: #1b1430; --yellow: #3b82f6; --yellow-light: #93c5fd; --green: #06c755; --red: #ff6b6b; --orange: #ffb347;
     --text: #fff; --muted: #d9d2ee; --paper: #fff; --paper-ink: #1b1430; --paper-muted: #5a5274; }
   * { box-sizing: border-box; }
   html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text);
     font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", "Noto Sans JP", system-ui, sans-serif; font-size: 18px; line-height: 1.6; }
   body { padding: calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 28px); max-width: 560px; margin: 0 auto; }
   button, a.btn { font: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-  button:focus-visible, a.btn:focus-visible, input:focus-visible { outline: 4px solid var(--yellow); outline-offset: 2px; }
+  button:focus-visible, a.btn:focus-visible, input:focus-visible { outline: 4px solid var(--yellow-light); outline-offset: 2px; }
   header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
   h1 { margin: 0; font-size: 26px; font-weight: 900; line-height: 1.2; }
   h1 small { display: block; font-size: 13px; font-weight: 700; color: var(--muted); }
   .tools { display: flex; gap: 6px; }
   .tool { min-width: 56px; min-height: 56px; padding: 4px 10px; border: 3px solid var(--ink); border-radius: 14px; background: #3a2a66; color: #fff; font-size: 14px; font-weight: 800; line-height: 1.15; }
   .tool b { display: block; font-size: 22px; line-height: 1.1; }
-  .tool.on { background: var(--yellow); color: var(--ink); }
+  .tool.on { background: var(--yellow); color: #fff; }
   .tool:disabled { opacity: .4; }
   .view { display: none; }
   .view.on { display: block; }
@@ -45,7 +45,7 @@
   .finder video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: center; }
   .finder .frame { position: absolute; inset: 14%; border-radius: 16px; pointer-events: none;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35); }
-  .finder .frame i { position: absolute; width: 42px; height: 42px; border: 6px solid var(--yellow); border-radius: 6px; }
+  .finder .frame i { position: absolute; width: 42px; height: 42px; border: 6px solid var(--yellow-light); border-radius: 6px; }
   .finder .frame i:nth-child(1) { left: -6px; top: -6px; border-right: 0; border-bottom: 0; }
   .finder .frame i:nth-child(2) { right: -6px; top: -6px; border-left: 0; border-bottom: 0; }
   .finder .frame i:nth-child(3) { left: -6px; bottom: -6px; border-right: 0; border-top: 0; }
@@ -64,7 +64,7 @@
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
   .row.one { grid-template-columns: 1fr; }
   .big { display: block; width: 100%; font: inherit; font-weight: 900; font-size: 22px; padding: 16px 12px; border: 4px solid var(--ink); border-radius: 999px;
-    background: var(--yellow); color: var(--ink); text-align: center; text-decoration: none; line-height: 1.3; min-height: 64px; }
+    background: var(--yellow); color: #fff; text-align: center; text-decoration: none; line-height: 1.3; min-height: 64px; }
   .big.green { background: var(--green); color: #fff; }
   .big.sub { background: #fff; color: var(--ink); font-size: 19px; }
   .big.ghost { background: #3a2a66; color: #fff; font-size: 19px; }
@@ -91,8 +91,8 @@
   .paper .field .v { font-size: 22px; font-weight: 800; overflow-wrap: anywhere; }
   .paper .field .v.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .04em; }
   .paper .field .v small { font-size: 15px; font-weight: 700; color: var(--paper-muted); }
-  .paper .mini { display: inline-block; font: inherit; font-size: 16px; font-weight: 800; padding: 8px 14px; border: 3px solid var(--ink); border-radius: 999px; background: var(--yellow); color: var(--ink); margin: 6px 6px 0 0; text-decoration: none; min-height: 44px; }
-  .paper .mini.white { background: #fff; }
+  .paper .mini { display: inline-block; font: inherit; font-size: 16px; font-weight: 800; padding: 8px 14px; border: 3px solid var(--ink); border-radius: 999px; background: var(--yellow); color: #fff; margin: 6px 6px 0 0; text-decoration: none; min-height: 44px; }
+  .paper .mini.white { background: #fff; color: var(--ink); }
   .check { border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; font-weight: 700; font-size: 17px; line-height: 1.55; border: 3px solid; }
   .check.ok { background: #0e3a22; border-color: #06c755; }
   .check.warn { background: #4a3410; border-color: var(--orange); }
@@ -119,7 +119,7 @@
   .sheet.on { display: block; }
   .sheet .in { background: var(--card); border: 4px solid var(--ink); border-radius: 20px; padding: 18px; max-width: 560px; margin: calc(env(safe-area-inset-top) + 10px) auto 40px; }
   .sheet h2 { font-size: 22px; margin: 0 0 8px; }
-  .sheet h3 { font-size: 18px; margin: 18px 0 4px; color: var(--yellow); }
+  .sheet h3 { font-size: 18px; margin: 18px 0 4px; color: var(--yellow-light); }
   .sheet p, .sheet li { font-size: 17px; line-height: 1.65; margin: 0 0 6px; }
   .sheet ul { padding-left: 1.3em; margin: 0; }
   footer { font-size: 14px; color: var(--muted); line-height: 1.6; margin-top: 18px; text-align: center; }
@@ -178,7 +178,7 @@
 <div class="sheet" id="help">
   <div class="in">
     <h2>使い方</h2>
-    <p>1. アプリを開くと カメラが動きます。QRコードを 黄色いわくの中に 入れるだけ。</p>
+    <p>1. アプリを開くと カメラが動きます。QRコードを 青いわくの中に 入れるだけ。</p>
     <p>2. 読めると「どこへ行くか」「何が書いてあるか」を先に見せます。<b>勝手には開きません。</b></p>
     <p>3. 内容を確かめて、大きなボタンを押します(「開く」「電話をかける」など)。</p>
     <h3>読めないとき</h3>
