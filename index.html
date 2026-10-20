@@ -42,13 +42,15 @@
   /* ---- カメラ ---- */
   .finder { position: relative; width: 100%; aspect-ratio: 1 / 1; background: #000; border-radius: 22px; overflow: hidden; border: 4px solid var(--blue-dark); }
   .finder video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: center; }
-  .finder .frame { position: absolute; inset: 13%; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35); }
+  .finder .frame { position: absolute; inset: 16%; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35); }
   .finder .frame i { position: absolute; width: 46px; height: 46px; border: 7px solid var(--blue-frame); border-radius: 6px; }
   .finder .frame i:nth-child(1) { left: -7px; top: -7px; border-right: 0; border-bottom: 0; }
   .finder .frame i:nth-child(2) { right: -7px; top: -7px; border-left: 0; border-bottom: 0; }
   .finder .frame i:nth-child(3) { left: -7px; bottom: -7px; border-right: 0; border-top: 0; }
   .finder .frame i:nth-child(4) { right: -7px; bottom: -7px; border-left: 0; border-top: 0; }
-  .finder .msg { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; text-align: center; font-weight: 900; font-size: 21px; line-height: 1.45; color: #fff; background: rgba(15, 23, 52, .82); }
+  .scanmsg { margin: 0 0 10px; padding: 12px 10px; text-align: center; font-weight: 900; font-size: 22px; line-height: 1.5; color: var(--blue-dark); word-break: keep-all;
+    background: #fff; border: 3px solid var(--blue-soft); border-radius: 18px; }
+  .scanmsg b { color: var(--blue); }
   .finder .cover { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; text-align: center; background: #eef3ff; color: var(--ink); }
   .finder .cover.on { display: flex; }
   .finder .cover p { margin: 0; font-size: 20px; line-height: 1.65; font-weight: 700; }
@@ -143,11 +145,11 @@
 
 <!-- ===== 読み取り画面 ===== -->
 <section class="view on" id="scan">
+  <p class="scanmsg" id="scanMsg">📷 QRコードを<br><b>青いわく</b>に 入れてください</p>
   <div class="finder">
     <video id="video" playsinline muted autoplay></video>
     <div class="frame"><i></i><i></i><i></i><i></i></div>
     <div class="flash" id="flash"></div>
-    <div class="msg" id="scanMsg">QRコードを 青いわくに 入れてください</div>
     <div class="cover" id="cover">
       <p id="coverMsg">カメラを 起動しています…</p>
       <button type="button" class="big" id="startBtn">カメラを始める</button>
@@ -157,7 +159,7 @@
     <button type="button" class="big white hidden" id="torchBtn">💡 ライト</button>
     <button type="button" class="big white" id="zoomBtn">🔍 大きく</button>
   </div>
-  <button type="button" class="big white" id="fileBtn" style="margin-top:12px">🖼 写真から読む<small>撮っておいた写真の 中の QR を 読みます</small></button>
+  <button type="button" class="big white" id="fileBtn" style="margin-top:12px">🖼 写真から読む<small>撮った写真の QR を 読みます</small></button>
   <input type="file" id="file" accept="image/*">
   <p class="note">読んだものは このスマホの中だけに残り、どこにも送りません。広告も出ません。</p>
 
@@ -607,7 +609,7 @@ const UI = (() => {
   async function startCamera() {
     setCover('カメラを 起動しています…', null);
     $('torchBtn').classList.add('hidden'); $('torchBtn').classList.remove('on'); $('torchBtn').textContent = '💡 ライト';
-    $('scanMsg').textContent = 'QRコードを 青いわくに 入れてください';
+    $('scanMsg').innerHTML = '📷 QRコードを<br><b>青いわく</b>に 入れてください';
     try {
       await Camera.start(onFound);
       setCover(null);
