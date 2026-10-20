@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#140c2a">
+<meta name="theme-color" content="#f3f5fa">
 <title>あんしんQR</title>
 <meta name="description" content="QRコードを読んで、どこへ行くかを先に見せる、広告なしのシンプルなQRリーダー。お店の注文・名刺・Wi-Fi に。読んだ内容はスマホの外に送りません。">
 <link rel="manifest" href="manifest.webmanifest">
@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="あんしんQR">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:type" content="website">
 <meta property="og:title" content="あんしんQR">
 <meta property="og:description" content="QRコードを読んで、どこへ行くかを先に見せる、広告なしのシンプルなQRリーダー。お店の注文・名刺・Wi-Fi に。読んだ内容はスマホの外に送りません。">
@@ -21,123 +21,125 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <style>
-  :root { color-scheme: dark; --bg: #140c2a; --card: #241449; --ink: #1b1430; --yellow: #3b82f6; --yellow-light: #93c5fd; --green: #06c755; --red: #ff6b6b; --orange: #ffb347;
-    --text: #fff; --muted: #d9d2ee; --paper: #fff; --paper-ink: #1b1430; --paper-muted: #5a5274; }
+  :root { color-scheme: light; --bg: #f3f5fa; --card: #fff; --ink: #16213e; --muted: #4a5578; --line: #d3dbec;
+    --blue: #1d4ed8; --blue-dark: #1e3a8a; --blue-soft: #dbe6ff; --blue-frame: #60a5fa; --green: #05873c;
+    --ok-bg: #e6f6ec; --ok: #12813f; --warn-bg: #fff3dc; --warn: #c47100; --danger-bg: #fde7e7; --danger: #c62828; }
   * { box-sizing: border-box; }
-  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text);
-    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", "Noto Sans JP", system-ui, sans-serif; font-size: 18px; line-height: 1.6; }
-  body { padding: calc(env(safe-area-inset-top) + 10px) 14px calc(env(safe-area-inset-bottom) + 28px); max-width: 560px; margin: 0 auto; }
-  button, a.btn { font: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-  button:focus-visible, a.btn:focus-visible, input:focus-visible { outline: 4px solid var(--yellow-light); outline-offset: 2px; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
-  h1 { margin: 0; font-size: 26px; font-weight: 900; line-height: 1.2; }
-  h1 small { display: block; font-size: 13px; font-weight: 700; color: var(--muted); }
-  .tools { display: flex; gap: 6px; }
-  .tool { min-width: 56px; min-height: 56px; padding: 4px 10px; border: 3px solid var(--ink); border-radius: 14px; background: #3a2a66; color: #fff; font-size: 14px; font-weight: 800; line-height: 1.15; }
-  .tool b { display: block; font-size: 22px; line-height: 1.1; }
-  .tool.on { background: var(--yellow); color: #fff; }
-  .tool:disabled { opacity: .4; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Meiryo", "Noto Sans JP", system-ui, sans-serif; font-size: 20px; line-height: 1.7; }
+  body { padding: calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 32px); max-width: 560px; margin: 0 auto; }
+  body.large { zoom: 1.18; }
+  button, .big { font: inherit; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, a:focus-visible { outline: 4px solid var(--blue-frame); outline-offset: 2px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  h1 { margin: 0; font-size: 30px; font-weight: 900; line-height: 1.2; color: var(--blue-dark); }
+  h1, .helpbtn { white-space: nowrap; }
+  body.large h1 { font-size: 24px; } body.large .helpbtn { padding: 6px 10px; font-size: 18px; }
+  .helpbtn { min-height: 60px; padding: 6px 16px; border: 3px solid var(--blue); border-radius: 16px; background: #fff; color: var(--blue); font-size: 20px; font-weight: 900; }
   .view { display: none; }
   .view.on { display: block; }
 
   /* ---- カメラ ---- */
-  .finder { position: relative; width: 100%; aspect-ratio: 1 / 1; background: #000; border-radius: 20px; overflow: hidden; border: 4px solid var(--ink); }
+  .finder { position: relative; width: 100%; aspect-ratio: 1 / 1; background: #000; border-radius: 22px; overflow: hidden; border: 4px solid var(--blue-dark); }
   .finder video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: center; }
-  .finder .frame { position: absolute; inset: 14%; border-radius: 16px; pointer-events: none;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35); }
-  .finder .frame i { position: absolute; width: 42px; height: 42px; border: 6px solid var(--yellow-light); border-radius: 6px; }
-  .finder .frame i:nth-child(1) { left: -6px; top: -6px; border-right: 0; border-bottom: 0; }
-  .finder .frame i:nth-child(2) { right: -6px; top: -6px; border-left: 0; border-bottom: 0; }
-  .finder .frame i:nth-child(3) { left: -6px; bottom: -6px; border-right: 0; border-top: 0; }
-  .finder .frame i:nth-child(4) { right: -6px; bottom: -6px; border-left: 0; border-top: 0; }
-  .finder .msg { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 12px; text-align: center; font-weight: 800; font-size: 18px;
-    background: rgba(20, 12, 42, .78); }
-  .finder .cover { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px; text-align: center; background: var(--card); }
+  .finder .frame { position: absolute; inset: 13%; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35); }
+  .finder .frame i { position: absolute; width: 46px; height: 46px; border: 7px solid var(--blue-frame); border-radius: 6px; }
+  .finder .frame i:nth-child(1) { left: -7px; top: -7px; border-right: 0; border-bottom: 0; }
+  .finder .frame i:nth-child(2) { right: -7px; top: -7px; border-left: 0; border-bottom: 0; }
+  .finder .frame i:nth-child(3) { left: -7px; bottom: -7px; border-right: 0; border-top: 0; }
+  .finder .frame i:nth-child(4) { right: -7px; bottom: -7px; border-left: 0; border-top: 0; }
+  .finder .msg { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; text-align: center; font-weight: 900; font-size: 21px; line-height: 1.45; color: #fff; background: rgba(15, 23, 52, .82); }
+  .finder .cover { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; text-align: center; background: #eef3ff; color: var(--ink); }
   .finder .cover.on { display: flex; }
-  .finder .cover p { margin: 0; font-size: 18px; line-height: 1.6; }
+  .finder .cover p { margin: 0; font-size: 20px; line-height: 1.65; font-weight: 700; }
+  .finder .cover .big { width: auto; min-width: 70%; }
   .finder .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; transition: opacity .35s; }
   .finder .flash.on { opacity: .8; transition: none; }
-  .zoom { display: none; align-items: center; gap: 10px; margin: 12px 0 0; font-weight: 800; }
-  .zoom.on { display: flex; }
-  .zoom input { flex: 1; min-height: 44px; accent-color: var(--yellow); }
-  .zoom span { min-width: 3.2em; text-align: right; font-size: 18px; }
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-  .row.one { grid-template-columns: 1fr; }
-  .big { display: block; width: 100%; font: inherit; font-weight: 900; font-size: 22px; padding: 16px 12px; border: 4px solid var(--ink); border-radius: 999px;
-    background: var(--yellow); color: #fff; text-align: center; text-decoration: none; line-height: 1.3; min-height: 64px; }
-  .big.green { background: var(--green); color: #fff; }
-  .big.sub { background: #fff; color: var(--ink); font-size: 19px; }
-  .big.ghost { background: #3a2a66; color: #fff; font-size: 19px; }
-  .big.again { background: var(--yellow-light); color: var(--ink); }
+
+  .row { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; margin-top: 12px; }
+  .big { display: block; width: 100%; font-weight: 900; font-size: 24px; padding: 16px 12px; border: 0; border-radius: 18px;
+    background: var(--blue); color: #fff; text-align: center; text-decoration: none; line-height: 1.3; min-height: 72px; box-shadow: 0 3px 0 var(--blue-dark); }
+  .big small { display: block; font-size: 16px; font-weight: 800; margin-top: 3px; }
+  .big.green { background: var(--green); box-shadow: 0 3px 0 #04602b; }
+  .big.white { background: #fff; color: var(--ink); border: 3px solid var(--line); box-shadow: none; font-size: 21px; }
+  .big.again { background: var(--blue-soft); color: var(--blue-dark); box-shadow: 0 3px 0 #a9bff0; }
+  .big.on { background: #f5b800; color: var(--ink); box-shadow: 0 3px 0 #b88a00; }
   .big:disabled { opacity: .45; cursor: default; }
-  .big + .big { margin-top: 10px; }
-  .big small { display: block; font-size: 14px; font-weight: 800; margin-top: 2px; }
+  .big + .big, .big + .ask { margin-top: 12px; }
   input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-  .note { font-size: 16px; color: var(--muted); line-height: 1.65; margin: 14px 0 0; }
-  .banner { background: #4a1f1f; border: 3px solid var(--red); border-radius: 14px; padding: 12px; margin: 0 0 12px; font-weight: 700; display: none; }
+  .note { font-size: 18px; color: var(--muted); line-height: 1.7; margin: 14px 0 0; }
+  .banner { background: var(--danger-bg); border: 3px solid var(--danger); border-radius: 16px; padding: 14px; margin: 0 0 12px; font-weight: 700; font-size: 19px; display: none; }
   .banner.on { display: block; }
 
   /* ---- 結果 ---- */
-  .kind { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 900; margin: 0 0 10px; }
-  .kind b { font-size: 34px; line-height: 1; }
-  .paper { background: var(--paper); color: var(--paper-ink); border: 4px solid var(--ink); border-radius: 18px; padding: 16px; margin-bottom: 12px; }
-  .paper .lbl { font-size: 15px; font-weight: 800; color: var(--paper-muted); margin: 0 0 2px; }
-  .paper .main { font-size: 30px; font-weight: 900; line-height: 1.3; margin: 0 0 10px; overflow-wrap: anywhere; }
-  .paper .main.mid { font-size: 24px; }
-  .paper .full { font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; word-break: break-all; color: #2d2650; margin: 0;
+  .kind { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 900; margin: 0 0 12px; }
+  .kind b { font-size: 38px; line-height: 1; }
+  .paper { background: var(--card); color: var(--ink); border: 3px solid var(--line); border-radius: 20px; padding: 16px; margin-bottom: 14px; }
+  .paper .lbl { font-size: 17px; font-weight: 800; color: var(--muted); margin: 0 0 2px; }
+  .paper .main { font-size: 32px; font-weight: 900; line-height: 1.3; margin: 0 0 10px; overflow-wrap: anywhere; }
+  .paper .main.mid { font-size: 26px; }
+  .paper .full { font-size: 17px; line-height: 1.55; overflow-wrap: anywhere; word-break: break-all; color: #2b3456; margin: 0;
     font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; max-height: 9em; overflow: auto; white-space: pre-wrap; }
-  .paper .service { display: inline-block; background: #e6f8ec; color: #0a6b2e; border-radius: 999px; padding: 2px 12px; font-weight: 800; font-size: 16px; margin: 0 0 8px; }
-  .paper .field { padding: 8px 0; border-top: 2px solid #ece8f6; }
-  .paper .field:first-child { border-top: 0; }
-  .paper .field .v { font-size: 22px; font-weight: 800; overflow-wrap: anywhere; }
-  .paper .field .v.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .04em; }
-  .paper .field .v small { font-size: 15px; font-weight: 700; color: var(--paper-muted); }
-  .paper .mini { display: inline-block; font: inherit; font-size: 16px; font-weight: 800; padding: 8px 14px; border: 3px solid var(--ink); border-radius: 999px; background: var(--yellow); color: #fff; margin: 6px 6px 0 0; text-decoration: none; min-height: 44px; }
-  .paper .mini.white { background: #fff; color: var(--ink); }
-  .check { border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; font-weight: 700; font-size: 17px; line-height: 1.55; border: 3px solid; }
-  .check.ok { background: #0e3a22; border-color: #06c755; }
-  .check.warn { background: #4a3410; border-color: var(--orange); }
-  .check.danger { background: #4a1f1f; border-color: var(--red); }
+  .paper .service { display: inline-block; background: var(--ok-bg); color: var(--ok); border-radius: 999px; padding: 3px 14px; font-weight: 800; font-size: 18px; margin: 0 0 8px; }
+  .paper .field { padding: 10px 0; border-top: 2px solid #edf0f7; }
+  .paper .field:first-child { border-top: 0; padding-top: 0; }
+  .paper .field .v { font-size: 24px; font-weight: 800; overflow-wrap: anywhere; line-height: 1.4; }
+  .paper .field .v.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; letter-spacing: .05em; font-size: 26px; }
+  .paper .field .v small { font-size: 17px; font-weight: 700; color: var(--muted); }
+  .paper .mini { display: inline-block; font: inherit; font-size: 18px; font-weight: 800; padding: 10px 16px; border: 0; border-radius: 14px; background: var(--blue); color: #fff; margin: 8px 8px 0 0; text-decoration: none; min-height: 52px; }
+  .paper .mini.white { background: #fff; color: var(--ink); border: 3px solid var(--line); }
+  .check { border-radius: 18px; padding: 14px 16px; margin-bottom: 14px; font-weight: 700; font-size: 19px; line-height: 1.6; border: 4px solid; }
+  .check.ok { background: var(--ok-bg); border-color: var(--ok); }
+  .check.warn { background: var(--warn-bg); border-color: var(--warn); }
+  .check.danger { background: var(--danger-bg); border-color: var(--danger); }
   .check ul { margin: 6px 0 0; padding-left: 1.3em; }
   .check li { margin: 4px 0; }
-  .check .t { font-size: 19px; font-weight: 900; }
-  .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 24px); transform: translateX(-50%); background: #fff; color: var(--ink); font-weight: 900; font-size: 18px;
-    padding: 12px 22px; border-radius: 999px; border: 3px solid var(--ink); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 50; white-space: nowrap; }
+  .check .t { font-size: 23px; font-weight: 900; line-height: 1.4; margin-bottom: 4px; }
+  .check.ok .t { color: var(--ok); } .check.warn .t { color: #8a4f00; } .check.danger .t { color: var(--danger); }
+  .speak { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-weight: 900; font-size: 20px; padding: 12px; min-height: 60px; margin: 0;
+    background: #fff; color: var(--blue); border: 3px solid var(--blue); border-radius: 18px; }
+  .ask { display: block; width: 100%; margin-top: 18px; background: none; border: 0; color: var(--danger); font-weight: 800; font-size: 18px; text-decoration: underline; padding: 12px; min-height: 52px; }
+  .toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 24px); transform: translateX(-50%); background: var(--ink); color: #fff; font-weight: 900; font-size: 20px;
+    padding: 14px 24px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 50; max-width: 92vw; text-align: center; }
   .toast.on { opacity: 1; }
 
   /* ---- 履歴 ---- */
-  .hist { margin-top: 22px; }
-  .hist h2 { font-size: 18px; margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; }
-  .hist h2 button { font-size: 15px; font-weight: 800; background: none; border: 2px solid var(--muted); color: var(--muted); border-radius: 999px; padding: 6px 12px; min-height: 40px; }
-  .hist .item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: var(--card); border: 3px solid var(--ink); border-radius: 14px; padding: 10px 12px; color: #fff; margin-bottom: 8px; min-height: 60px; }
-  .hist .item b { font-size: 26px; line-height: 1; }
-  .hist .item span { flex: 1; min-width: 0; font-size: 17px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .hist .item small { font-size: 13px; color: var(--muted); white-space: nowrap; }
-  .hist .empty { color: var(--muted); font-size: 16px; }
+  .hist { margin-top: 26px; }
+  .hist h2 { font-size: 21px; margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; }
+  .hist h2 button { font-size: 17px; font-weight: 800; background: #fff; border: 2px solid var(--line); color: var(--muted); border-radius: 12px; padding: 6px 14px; min-height: 48px; }
+  .hist .item { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: var(--card); border: 3px solid var(--line); border-radius: 16px; padding: 10px 14px; color: var(--ink); margin-bottom: 10px; min-height: 68px; }
+  .hist .item b { font-size: 28px; line-height: 1; }
+  .hist .item span { flex: 1; min-width: 0; font-size: 19px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.4; }
+  .hist .item small { font-size: 15px; color: var(--muted); white-space: nowrap; font-weight: 700; }
+  .hist .empty { color: var(--muted); font-size: 18px; margin: 0; }
+  .hist .more { width: 100%; background: none; border: 0; color: var(--blue); font-weight: 900; font-size: 19px; padding: 10px; min-height: 52px; }
 
-  /* ---- 使い方 ---- */
-  .sheet { position: fixed; inset: 0; background: rgba(0, 0, 0, .6); display: none; z-index: 40; overflow: auto; padding: 16px; }
+  /* ---- 使い方・設定 ---- */
+  .sheet { position: fixed; inset: 0; background: rgba(10, 18, 40, .55); display: none; z-index: 40; overflow: auto; padding: 16px; }
   .sheet.on { display: block; }
-  .sheet .in { background: var(--card); border: 4px solid var(--ink); border-radius: 20px; padding: 18px; max-width: 560px; margin: calc(env(safe-area-inset-top) + 10px) auto 40px; }
-  .sheet h2 { font-size: 22px; margin: 0 0 8px; }
-  .sheet h3 { font-size: 18px; margin: 18px 0 4px; color: var(--yellow-light); }
-  .sheet p, .sheet li { font-size: 17px; line-height: 1.65; margin: 0 0 6px; }
+  .sheet .in { background: #fff; border-radius: 22px; padding: 20px; max-width: 560px; margin: calc(env(safe-area-inset-top) + 10px) auto 40px; }
+  .sheet h2 { font-size: 26px; margin: 0 0 10px; color: var(--blue-dark); }
+  .sheet h3 { font-size: 21px; margin: 22px 0 6px; color: var(--blue-dark); }
+  .sheet p, .sheet li { font-size: 19px; line-height: 1.7; margin: 0 0 8px; }
   .sheet ul { padding-left: 1.3em; margin: 0; }
-  footer { font-size: 14px; color: var(--muted); line-height: 1.6; margin-top: 18px; text-align: center; }
+  .setting { background: var(--bg); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
+  .setting p { margin: 0 0 8px; font-weight: 900; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .seg button { font-weight: 900; font-size: 20px; min-height: 56px; border-radius: 14px; border: 3px solid var(--line); background: #fff; color: var(--ink); }
+  .seg button.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+  footer { font-size: 16px; color: var(--muted); line-height: 1.6; margin-top: 22px; text-align: center; }
+  footer a { color: inherit; }
   .hidden { display: none !important; }
-  @media (max-width: 360px) { h1 { font-size: 22px; } .paper .main { font-size: 26px; } }
+  @media (max-width: 360px) { h1 { font-size: 25px; } .paper .main { font-size: 27px; } .big { font-size: 21px; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>あんしんQR<small>読んで、確かめて、開く</small></h1>
-  <div class="tools">
-    <button type="button" class="tool" id="soundBtn" aria-pressed="true" title="読めたときの音"><b>🔔</b>音</button>
-    <button type="button" class="tool" id="helpBtn"><b>❓</b>使い方</button>
-  </div>
+  <h1>あんしんQR</h1>
+  <button type="button" class="helpbtn" id="helpBtn">❓ 使い方</button>
 </header>
 
-<div class="banner" id="lineBanner">LINE の中で開いていると、カメラが使えないことがあります。右上か右下の「…」や「<b>↗</b>」から「<b>Safari で開く</b>」(iPhone)/「<b>他のアプリで開く</b>」(Android)を選んでください。</div>
+<div class="banner" id="lineBanner">LINE の中で開いていると、カメラが使えないことがあります。画面の「…」から「<b>Safari で開く</b>」(iPhone)、または「<b>他のアプリで開く</b>」(Android)を選んでください。</div>
 
 <!-- ===== 読み取り画面 ===== -->
 <section class="view on" id="scan">
@@ -145,19 +147,19 @@
     <video id="video" playsinline muted autoplay></video>
     <div class="frame"><i></i><i></i><i></i><i></i></div>
     <div class="flash" id="flash"></div>
-    <div class="msg" id="scanMsg">QRコードを わくの中に 入れてください</div>
+    <div class="msg" id="scanMsg">QRコードを 青いわくに 入れてください</div>
     <div class="cover" id="cover">
-      <p id="coverMsg">カメラを起動しています…</p>
+      <p id="coverMsg">カメラを 起動しています…</p>
       <button type="button" class="big" id="startBtn">カメラを始める</button>
     </div>
   </div>
-  <div class="zoom" id="zoomBox"><label for="zoom">🔍 拡大</label><input type="range" id="zoom" min="1" max="3" step="0.1" value="1"><span id="zoomVal">1.0倍</span></div>
   <div class="row">
-    <button type="button" class="big ghost" id="torchBtn" disabled>💡 ライト<small>暗いところで</small></button>
-    <button type="button" class="big sub" id="fileBtn">🖼 写真から読む<small>スクショ・画像</small></button>
-    <input type="file" id="file" accept="image/*">
+    <button type="button" class="big white hidden" id="torchBtn">💡 ライト</button>
+    <button type="button" class="big white" id="zoomBtn">🔍 大きく</button>
   </div>
-  <p class="note">読んだ内容は このスマホの中にだけ残り、どこにも送りません。広告もありません。</p>
+  <button type="button" class="big white" id="fileBtn" style="margin-top:12px">🖼 写真から読む<small>撮っておいた写真の 中の QR を 読みます</small></button>
+  <input type="file" id="file" accept="image/*">
+  <p class="note">読んだものは このスマホの中だけに残り、どこにも送りません。広告も出ません。</p>
 
   <div class="hist" id="hist">
     <h2>さいきん読んだもの <button type="button" id="clearHist">消す</button></h2>
@@ -171,39 +173,44 @@
   <div id="checkBox" class="check ok"></div>
   <div class="paper" id="paper"></div>
   <div id="actions"></div>
-  <button type="button" class="big again" id="againBtn" style="margin-top:14px">📷 もう一度 読む</button>
+  <button type="button" class="speak hidden" id="speakBtn" style="margin-top:12px">🔊 声で読み上げる</button>
+  <button type="button" class="big again" id="againBtn" style="margin-top:16px">📷 もう一度 読む</button>
 </section>
 
-<footer>あんしんQR v1.0 ・ 無料・広告なし ・ <a href="https://github.com/roguepink/QR" style="color:inherit">しくみ</a></footer>
+<footer>あんしんQR v1.1 ・ 無料・広告なし ・ <a href="https://github.com/roguepink/QR">しくみ</a></footer>
 
 <div class="sheet" id="help">
   <div class="in">
     <h2>使い方</h2>
-    <p>1. アプリを開くと カメラが動きます。QRコードを 青いわくの中に 入れるだけ。</p>
-    <p>2. 読めると「どこへ行くか」「何が書いてあるか」を先に見せます。<b>勝手には開きません。</b></p>
-    <p>3. 内容を確かめて、大きなボタンを押します(「開く」「電話をかける」など)。</p>
+    <p>① QRコードを 青いわくに 入れます。</p>
+    <p>② 読めると「ピッ」と鳴り、<b>どこへ行くか</b>を大きく見せます。<b>勝手には開きません。</b></p>
+    <p>③ 内容を見て、青い大きなボタンを押します。</p>
+    <h3>設定</h3>
+    <div class="setting"><p>🔔 読めたときの音</p><div class="seg" id="soundSeg"><button type="button" data-v="1">あり</button><button type="button" data-v="0">なし</button></div></div>
+    <div class="setting"><p>🔠 文字の大きさ</p><div class="seg" id="sizeSeg"><button type="button" data-v="0">ふつう</button><button type="button" data-v="1">大きい</button></div></div>
     <h3>読めないとき</h3>
     <ul>
-      <li>少し離す・近づける、まっすぐ向ける、明るくする(「💡 ライト」)</li>
-      <li>名刺など小さいQRは「🔍 拡大」で大きくする</li>
-      <li>LINE やメールで届いたQRは、スクショを撮って「🖼 写真から読む」</li>
+      <li>スマホを 少し離したり 近づけたりする</li>
+      <li>暗いときは「💡 ライト」</li>
+      <li>名刺など 小さい QR は「🔍 大きく」</li>
+      <li>LINE やメールで届いた QR は、画面を写真に撮って(スクリーンショット)「🖼 写真から読む」</li>
     </ul>
     <h3>カメラが動かないとき</h3>
     <ul>
-      <li><b>iPhone:</b> 設定 → アプリ → Safari → カメラ を「確認」か「許可」に。ホーム画面に入れたアプリなら 設定 → アプリ → あんしんQR → カメラ</li>
-      <li><b>Android:</b> アドレスの左の 🔒 や ⓘ → 権限 → カメラ を「許可」に</li>
-      <li><b>LINE の中で開いている</b>ときは、メニューから Safari や Chrome で開き直す</li>
+      <li><b>iPhone:</b> 設定 → アプリ → Safari → カメラ を「許可」に。ホーム画面に入れた場合は 設定 → アプリ → あんしんQR → カメラ</li>
+      <li><b>Android:</b> 画面の上の 🔒 や ⓘ → 権限 → カメラ を「許可」に</li>
+      <li><b>LINE の中で開いている</b>ときは、Safari や Chrome で開き直す</li>
     </ul>
-    <h3>安全のために</h3>
+    <h3>だまされないために</h3>
     <ul>
-      <li>読んだあとに出る「行き先」が、お店や相手の名前と合っているか 見てから開く</li>
-      <li>貼ってあるQRの上に 別のシールが重ねてあったら 読まない(すり替えの手口)</li>
-      <li>開いた先で <b>パスワード・カード番号・暗証番号</b> を求められたら、いったん閉じて 誰かに相談する</li>
-      <li>このアプリは 読んだ内容を どこにも送りません。「さいきん読んだもの」も このスマホの中だけです</li>
+      <li>読んだあとに出る「行き先」が、お店や相手の名前と 合っているか 見てから開く</li>
+      <li>貼ってある QR の上に、別のシールが重ねてあったら 読まない</li>
+      <li>開いた先で <b>パスワード・カード番号・暗証番号</b> を聞かれたら、入れずに閉じて 家族に相談する</li>
+      <li>あやしいときは「👪 家族に聞く」で、LINE で 家族に見てもらえます</li>
     </ul>
     <h3>ホーム画面に入れる</h3>
-    <p>iPhone(Safari): 共有ボタン → 「ホーム画面に追加」。Android(Chrome): メニュー(︙) → 「アプリをインストール」。入れると 全画面で すぐ開けます。</p>
-    <button type="button" class="big" id="helpClose" style="margin-top:14px">とじる</button>
+    <p>iPhone(Safari): 下の共有ボタン → 「ホーム画面に追加」。Android(Chrome): 右上の︙ → 「アプリをインストール」。</p>
+    <button type="button" class="big" id="helpClose" style="margin-top:16px">とじる</button>
   </div>
 </div>
 
@@ -345,22 +352,24 @@ const Parse = (() => {
     let u;
     try { u = new URL(s); } catch (e) { return null; }
     const scheme = u.protocol.replace(':', '').toLowerCase();
-    if (scheme !== 'http' && scheme !== 'https') return { kind: 'url', href: s, host: '', reg: '', service: '', blocked: true, warnings: [{ level: 'danger', text: '「' + scheme + ':」で始まる、ふつうのホームページではないアドレスです。安全のため、このアプリでは開きません。' }] };
+    if (scheme !== 'http' && scheme !== 'https') return { kind: 'url', href: s, host: '', reg: '', service: '', blocked: true, warnings: [{ level: 'danger', text: '「' + scheme + ':」で始まる、ふつうのホームページでは ないものです。安全のため 開きません。' }] };
     const host = u.hostname.toLowerCase();
     const reg = registrable(host);
+    // 国・役所のアドレス: go.jp / lg.jp と、地域の名前の city. town. vill. pref.(例 city.nakano.tokyo.jp)は 国と自治体しか取れない
+    const gov = /\.(go|lg)\.jp$/.test(host) || /(^|\.)(city|town|vill|pref)\.[a-z0-9-]+(\.[a-z0-9-]+)?\.jp$/.test(host);
     const warnings = [];
-    if (scheme === 'http') warnings.push({ level: 'warn', text: '暗号化されていない(http)アドレスです。入力はしないでください。' });
-    if (u.username || u.password) warnings.push({ level: 'danger', text: 'アドレスの中に「@」があり、本当の行き先を隠す手口に使われます。' });
-    if (/^\d+\.\d+\.\d+\.\d+$/.test(host) || host.includes(':')) warnings.push({ level: 'danger', text: '名前ではなく数字だけのアドレス(IPアドレス)です。お店や会社ではまず使いません。' });
-    if (host.split('.').some((p) => p.startsWith('xn--'))) warnings.push({ level: 'danger', text: '見た目を似せた外国の文字が混ざったアドレス(xn--)です。' });
-    if (CONFIG.SHORTENERS.includes(reg) || CONFIG.SHORTENERS.includes(host)) warnings.push({ level: 'warn', text: '短縮アドレスで、本当の行き先が隠れています。開いたあとに出るアドレスも確かめてください。' });
+    if (scheme === 'http') warnings.push({ level: 'warn', text: '通信が 守られていないページです(http)。名前や番号は 入れないでください。' });
+    if (u.username || u.password) warnings.push({ level: 'danger', text: 'アドレスの中に「@」があります。本当の行き先を かくす手口です。' });
+    if (/^\d+\.\d+\.\d+\.\d+$/.test(host) || host.includes(':')) warnings.push({ level: 'danger', text: '名前ではなく 数字だけのアドレスです。お店や役所では まず使いません。' });
+    if (host.split('.').some((p) => p.startsWith('xn--'))) warnings.push({ level: 'danger', text: '見た目を 本物に似せた 外国の文字が まざっています。' });
+    if (CONFIG.SHORTENERS.includes(reg) || CONFIG.SHORTENERS.includes(host)) warnings.push({ level: 'warn', text: '短く縮めたアドレスで、本当の行き先が かくれています。開いたあとの 行き先も 確かめてください。' });
     for (const [brand, real] of Object.entries(CONFIG.BRANDS)) {
-      if (host.includes(brand) && reg !== real && !host.endsWith('.' + real)) { warnings.push({ level: 'danger', text: '「' + brand + '」という有名な名前が入っていますが、本物(' + real + ')とは別のアドレスです。' }); break; }
+      if (host.includes(brand) && reg !== real && !host.endsWith('.' + real)) { warnings.push({ level: 'danger', text: '「' + brand + '」という有名な名前が入っていますが、本物(' + real + ')とは 別のアドレスです。' }); break; }
     }
-    if (host.split('.').length >= 5) warnings.push({ level: 'warn', text: '「.」がとても多い、複雑なアドレスです。' });
+    if (!gov && host.split('.').length >= 6) warnings.push({ level: 'warn', text: '「.」がとても多い、ふくざつなアドレスです。' });
     if (s.length > 400) warnings.push({ level: 'warn', text: 'とても長いアドレスです。' });
-    const service = CONFIG.SERVICES[reg] || CONFIG.SERVICES[host] || '';
-    return { kind: 'url', href: u.href, host, reg, service, blocked: false, warnings };
+    const service = CONFIG.SERVICES[reg] || CONFIG.SERVICES[host] || (gov ? (/\.go\.jp$/.test(host) ? '国のホームページ' : '役所(自治体)のホームページ') : '');
+    return { kind: 'url', href: u.href, host, reg, service, gov, blocked: false, warnings };
   }
 
   function parse(text) {
@@ -388,7 +397,7 @@ const Parse = (() => {
     return { kind: 'text', text: t };
   }
 
-  const KINDS = { url: ['🌐', 'ホームページ'], wifi: ['📶', 'Wi-Fi'], contact: ['👤', '名刺・連絡先'], tel: ['📞', '電話番号'], sms: ['💬', 'SMS(ショートメール)'], mail: ['✉️', 'メール'], geo: ['📍', '場所(地図)'], event: ['📅', '予定'], text: ['📝', '文字'] };
+  const KINDS = { url: ['🌐', 'ホームページ'], wifi: ['📶', 'Wi-Fi'], contact: ['👤', '名刺・連絡先'], tel: ['📞', '電話番号'], sms: ['💬', 'ショートメール(SMS)'], mail: ['✉️', 'メール'], geo: ['📍', '場所(地図)'], event: ['📅', '予定'], text: ['📝', '文字'] };
   const summary = (r) => ({ url: () => r.host || r.href, wifi: () => r.ssid, contact: () => r.name || r.org || '(名前なし)', tel: () => r.pretty, sms: () => r.pretty, mail: () => r.to, geo: () => r.lat + ', ' + r.lng, event: () => r.summary || '予定', text: () => r.text.slice(0, 60) })[r.kind]();
   return { parse, analyzeUrl, registrable, parseWifi, parseVcard, parseMecard, splitFields, prettyTel, cleanTel, KINDS, summary };
 })();
@@ -427,8 +436,7 @@ function beep() {
     o.start(t); o.stop(t + 0.15);
   } catch (e) { /* 鳴らなくても動く */ }
 }
-function buzz() { try { if (navigator.vibrate) navigator.vibrate(80); } catch (e) { /* なくてもよい */ } }
-function updateSoundBtn() { const b = $('soundBtn'); b.classList.toggle('on', soundOn); b.setAttribute('aria-pressed', soundOn ? 'true' : 'false'); b.innerHTML = soundOn ? '<b>🔔</b>音あり' : '<b>🔕</b>音なし'; }
+function buzz() { try { if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(80); } catch (e) { /* なくてもよい */ } }
 
 /* =============================== Camera =============================== */
 const Camera = (() => {
@@ -567,45 +575,45 @@ const Camera = (() => {
 
 /* ================================ UI ================================ */
 const UI = (() => {
-  let current = null;        // いま結果に出している {text, at}
   let history = store.get('qr.history', []);
   if (!Array.isArray(history)) history = [];
+  let histOpen = false;
+  let speech = '';           // 「声で読み上げる」で読む文
+  let zoomed = false;
 
   function show(view) {
     document.querySelectorAll('.view').forEach((v) => v.classList.toggle('on', v.id === view));
     window.scrollTo(0, 0);
   }
 
-  function setCover(msg, showStart) {
+  function setCover(msg, btnLabel) {
     const c = $('cover');
     if (msg === null) { c.classList.remove('on'); return; }
-    c.classList.add('on'); $('coverMsg').innerHTML = msg; $('startBtn').classList.toggle('hidden', !showStart);
+    c.classList.add('on'); $('coverMsg').innerHTML = msg;
+    $('startBtn').classList.toggle('hidden', !btnLabel); if (btnLabel) $('startBtn').textContent = btnLabel;
   }
 
   function cameraErrorMessage(e) {
     const name = (e && e.name) || '';
     const inLine = /\bLine\//i.test(navigator.userAgent);
     if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError')
-      return 'カメラの使用が許可されていません。<br><b>iPhone:</b> 設定 → アプリ → Safari → カメラ を「許可」に<br><b>Android:</b> アドレスの左の 🔒 → 権限 → カメラ を「許可」に<br>そのあと「カメラを始める」を押してください。' + (inLine ? '<br><br>LINE の中なら、Safari や Chrome で開き直してください。' : '');
-    if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'OverconstrainedError') return 'カメラが見つかりませんでした。「🖼 写真から読む」は使えます。';
-    if (name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError') return 'ほかのアプリがカメラを使っているか、一時的に使えません。ほかのアプリを閉じて「カメラを始める」を押してください。';
-    if (name === 'NoMediaDevices') return 'このブラウザでは カメラが使えません。' + (location.protocol === 'http:' && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'https のアドレスで開いてください。' : inLine ? 'メニューから Safari や Chrome で開き直してください。' : '「🖼 写真から読む」は使えます。');
-    return 'カメラを始められませんでした(' + esc(name || (e && e.message) || '不明') + ')。「カメラを始める」で もう一度 試せます。';
+      return 'カメラが 許可されていません。<br>' + (inLine ? 'LINE の中では 使えないことがあります。Safari や Chrome で 開き直してください。' : '下のボタンを押して、出てきた画面で「<b>許可</b>」を押してください。<br>出てこないときは「❓ 使い方」を見てください。');
+    if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'OverconstrainedError') return 'カメラが 見つかりませんでした。<br>「🖼 写真から読む」は 使えます。';
+    if (name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError') return 'ほかのアプリが カメラを使っています。<br>ほかのアプリを閉じてから、下のボタンを押してください。';
+    if (name === 'NoMediaDevices') return 'ここでは カメラが使えません。<br>' + (inLine ? 'Safari や Chrome で 開き直してください。' : '「🖼 写真から読む」は 使えます。');
+    return 'カメラを 始められませんでした。<br>下のボタンで もう一度 試せます。';
   }
 
   async function startCamera() {
-    setCover('カメラを起動しています…', false);
-    $('torchBtn').disabled = true;
-    $('scanMsg').textContent = 'QRコードを わくの中に 入れてください';
+    setCover('カメラを 起動しています…', null);
+    $('torchBtn').classList.add('hidden'); $('torchBtn').classList.remove('on'); $('torchBtn').textContent = '💡 ライト';
+    $('scanMsg').textContent = 'QRコードを 青いわくに 入れてください';
     try {
       await Camera.start(onFound);
       setCover(null);
-      const t = Camera.torchSupported();
-      $('torchBtn').disabled = !t;
-      $('torchBtn').innerHTML = '💡 ライト<small>' + (t ? '暗いところで' : 'このカメラでは使えません') + '</small>';
-      $('torchBtn').classList.remove('on');
+      $('torchBtn').classList.toggle('hidden', !Camera.torchSupported());   // 使えない機種では ボタンごと出さない(迷わないように)
     } catch (e) {
-      setCover(cameraErrorMessage(e), true);
+      setCover(cameraErrorMessage(e), 'カメラを始める');
     }
   }
 
@@ -613,98 +621,139 @@ const UI = (() => {
     buzz(); beep();
     const f = $('flash'); f.classList.add('on'); setTimeout(() => f.classList.remove('on'), 60);
     Camera.stop();
-    $('torchBtn').classList.remove('on');
     openResult(text, Date.now(), true);
+  }
+
+  function setZoom(on) {
+    zoomed = !!on; Camera.applyZoom(zoomed ? 2 : 1);
+    $('zoomBtn').classList.toggle('on', zoomed); $('zoomBtn').textContent = zoomed ? '🔍 もとに戻す' : '🔍 大きく';
   }
 
   /* ---------- 結果の表示 ---------- */
   function openResult(text, at, addToHistory) {
-    current = { text, at };
     if (addToHistory) {
       history = [{ text, at }].concat(history.filter((h) => h.text !== text)).slice(0, CONFIG.HISTORY_MAX);
       store.set('qr.history', history); renderHistory();
     }
+    try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* */ }
     const r = Parse.parse(text);
     const [icon, name] = Parse.KINDS[r.kind] || Parse.KINDS.text;
     $('kindIcon').textContent = icon; $('kindName').textContent = name;
     const paper = $('paper'), acts = $('actions'), check = $('checkBox');
     paper.innerHTML = ''; acts.innerHTML = ''; check.className = 'check hidden'; check.innerHTML = '';
-    const btn = (label, cls, attrs, sub) => '<a class="big ' + cls + '" ' + attrs + '>' + label + (sub ? '<small>' + sub + '</small>' : '') + '</a>';
-    const copyBtn = (s, label) => '<button type="button" class="big sub" data-copy="' + esc(s) + '">📋 ' + (label || 'コピーする') + '</button>';
+    const btn = (label, cls, attrs, sub) => '<a class="big ' + cls + '" ' + attrs + '>' + label + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</a>';
+    const copyBtn = (s, label) => '<button type="button" class="big white" data-copy="' + esc(s) + '">📋 ' + (label || 'コピーする') + '</button>';
     const shareBtn = (s) => (navigator.share ? '<button type="button" class="big green" data-share="' + esc(s) + '">📤 LINEなどで送る</button>' : '');
     const fullText = '<p class="lbl" style="margin-top:10px">読み取った全文</p><pre class="full">' + esc(text) + '</pre>';
+    speech = name + 'です。';
 
     switch (r.kind) {
       case 'url': {
-        const danger = r.warnings.some((w) => w.level === 'danger'), warn = r.warnings.length > 0;
-        check.className = 'check ' + (r.blocked || danger ? 'danger' : warn ? 'warn' : 'ok');
-        check.innerHTML = (r.blocked ? '<div class="t">⛔ このアドレスは開きません</div>' : danger ? '<div class="t">⚠️ あやしい所があります。開かないことをおすすめします</div>' : warn ? '<div class="t">⚠️ 気をつける所があります</div>' : '<div class="t">✅ あやしい所は見つかりませんでした</div><div>行き先が お店や相手の名前と合っているか 確かめてから開いてください。</div>')
-          + (r.warnings.length ? '<ul>' + r.warnings.map((w) => '<li>' + esc(w.text) + '</li>').join('') + '</ul>' : '');
-        paper.innerHTML = (r.service ? '<span class="service">✅ よく知られたサービス: ' + esc(r.service) + '</span>' : '')
+        const danger = r.blocked || r.warnings.some((w) => w.level === 'danger'), warn = r.warnings.length > 0;
+        const title = r.blocked ? '⛔ これは 開きません' : danger ? '⚠️ あやしいです。開かないでください' : warn ? '⚠️ 気をつける所があります' : '✅ あやしい所は 見つかりませんでした';
+        check.className = 'check ' + (danger ? 'danger' : warn ? 'warn' : 'ok');
+        check.innerHTML = '<div class="t">' + title + '</div>'
+          + (r.warnings.length ? '<ul>' + r.warnings.map((w) => '<li>' + esc(w.text) + '</li>').join('') + '</ul>'
+            : '<div>パスワードや カード番号を 聞かれたら、入れずに 閉じてください。</div>');
+        paper.innerHTML = (r.service ? '<span class="service">✅ ' + esc(r.service) + '</span>' : '')
           + '<p class="lbl">行き先</p><p class="main">' + esc(r.host || '(なし)') + '</p><p class="lbl">アドレスの全文</p><pre class="full">' + esc(r.href) + '</pre>';
-        if (!r.blocked) acts.innerHTML = btn((danger ? '⚠️ それでも開く' : '🌐 開く'), danger ? 'ghost' : '', 'href="' + esc(r.href) + '" target="_blank" rel="noopener noreferrer"', r.service ? r.service + ' を開きます' : '') + copyBtn(r.href, 'アドレスをコピー') + (danger ? '' : shareBtn(r.href));
-        else acts.innerHTML = copyBtn(text, '内容をコピー');
+        const ask = '<button type="button" class="big" data-family="1">👪 家族に聞く<small>LINE などで 家族に 見てもらう</small></button>';
+        if (r.blocked) acts.innerHTML = ask;
+        else if (danger) acts.innerHTML = ask + '<button type="button" class="ask" data-open="' + esc(r.href) + '">それでも開く</button>';
+        else if (warn) acts.innerHTML = btn('🌐 開く', '', 'href="' + esc(r.href) + '" target="_blank" rel="noopener noreferrer"', r.service ? r.service + ' を開きます' : '') + ask;
+        else acts.innerHTML = btn('🌐 開く', '', 'href="' + esc(r.href) + '" target="_blank" rel="noopener noreferrer"', r.service ? r.service + ' を開きます' : '') + shareBtn(r.href) + copyBtn(r.href, 'アドレスをコピー');
+        speech += (r.service ? r.service + '。' : '') + '行き先は、' + (r.host || '').replace(/^www\./, '') + '。' + title.replace(/[✅⚠️⛔]/gu, '') + '。' + r.warnings.map((w) => w.text).join('');
+        acts.querySelectorAll('[data-family]').forEach((b) => b.addEventListener('click', () => askFamily(r, title)));
+        acts.querySelectorAll('[data-open]').forEach((b) => b.addEventListener('click', () => {
+          if (confirm('本当に 開きますか?\n\n開いた先で、パスワード・カード番号・暗証番号は 入れないでください。')) window.open(b.getAttribute('data-open'), '_blank', 'noopener,noreferrer');
+        }));
         break;
       }
       case 'wifi': {
-        paper.innerHTML = '<div class="field"><p class="lbl">Wi-Fi の名前(ネットワーク名)</p><div class="v">' + esc(r.ssid) + '</div></div>'
-          + (r.open ? '<div class="field"><div class="v"><small>パスワードなし(そのまま つなげます)</small></div></div>'
-            : '<div class="field"><p class="lbl">パスワード</p><div class="v mono">' + esc(r.pass) + '</div></div>')
-          + (r.hidden ? '<div class="field"><div class="v"><small>かくれたネットワーク(一覧に出ません。名前を手で入れます)</small></div></div>' : '');
-        acts.innerHTML = (r.open ? '' : copyBtn(r.pass, 'パスワードをコピー'))
-          + '<p class="note">つなぎ方: 設定 → Wi-Fi で「<b>' + esc(r.ssid) + '</b>」を選び、コピーしたパスワードを貼り付けます。</p>';
+        paper.innerHTML = '<div class="field"><p class="lbl">Wi-Fi の名前</p><div class="v">' + esc(r.ssid) + '</div></div>'
+          + (r.open ? '<div class="field"><div class="v"><small>パスワードは ありません</small></div></div>'
+            : '<div class="field"><p class="lbl">パスワード</p><div class="v mono">' + esc(r.pass) + '</div></div>');
+        acts.innerHTML = r.open ? '' : copyBtn(r.pass, 'パスワードをコピー');
+        speech += '名前は、' + r.ssid + '。';
         break;
       }
       case 'contact': {
         let h = '';
-        if (r.name) h += '<div class="field"><p class="lbl">名前</p><div class="v" style="font-size:28px">' + esc(r.name) + (r.kana ? '<br><small>' + esc(r.kana) + '</small>' : '') + '</div></div>';
+        if (r.name) h += '<div class="field"><p class="lbl">名前</p><div class="v" style="font-size:30px">' + esc(r.name) + (r.kana ? '<br><small>' + esc(r.kana) + '</small>' : '') + '</div></div>';
         if (r.org || r.title) h += '<div class="field"><p class="lbl">会社・肩書</p><div class="v">' + esc([r.org, r.title].filter(Boolean).join(' ')) + '</div></div>';
-        r.tels.forEach((t) => { h += '<div class="field"><p class="lbl">電話' + (t.label ? '(' + esc(t.label) + ')' : '') + '</p><div class="v">' + esc(Parse.prettyTel(t.v)) + '</div><a class="mini" href="tel:' + esc(Parse.cleanTel(t.v)) + '">📞 電話をかける</a><button type="button" class="mini white" data-copy="' + esc(Parse.cleanTel(t.v)) + '">📋 コピー</button></div>'; });
-        r.emails.forEach((m) => { h += '<div class="field"><p class="lbl">メール' + (m.label ? '(' + esc(m.label) + ')' : '') + '</p><div class="v">' + esc(m.v) + '</div><a class="mini" href="mailto:' + esc(m.v) + '">✉️ メールを書く</a><button type="button" class="mini white" data-copy="' + esc(m.v) + '">📋 コピー</button></div>'; });
-        r.urls.forEach((u) => { const a = Parse.analyzeUrl(u); h += '<div class="field"><p class="lbl">ホームページ</p><div class="v" style="font-size:18px;word-break:break-all">' + esc(u) + '</div>' + (a && !a.blocked ? '<a class="mini" href="' + esc(a.href) + '" target="_blank" rel="noopener noreferrer">🌐 開く</a>' : '') + '</div>'; });
-        r.adrs.forEach((a) => { h += '<div class="field"><p class="lbl">住所' + (a.label ? '(' + esc(a.label) + ')' : '') + '</p><div class="v" style="font-size:19px">' + esc(a.v) + '</div><a class="mini" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(a.v) + '" target="_blank" rel="noopener noreferrer">📍 地図で見る</a></div>'; });
-        if (r.note) h += '<div class="field"><p class="lbl">メモ</p><div class="v" style="font-size:18px">' + esc(r.note) + '</div></div>';
-        if (!h) h = '<div class="field"><div class="v">読み取れる項目がありませんでした</div></div>' + fullText;
+        r.tels.forEach((t) => { h += '<div class="field"><p class="lbl">電話' + (t.label ? '(' + esc(t.label) + ')' : '') + '</p><div class="v">' + esc(Parse.prettyTel(t.v)) + '</div><a class="mini" href="tel:' + esc(Parse.cleanTel(t.v)) + '">📞 電話をかける</a></div>'; });
+        r.emails.forEach((m) => { h += '<div class="field"><p class="lbl">メール</p><div class="v">' + esc(m.v) + '</div><a class="mini" href="mailto:' + esc(m.v) + '">✉️ メールを書く</a></div>'; });
+        r.urls.forEach((u) => { const a = Parse.analyzeUrl(u); h += '<div class="field"><p class="lbl">ホームページ</p><div class="v" style="font-size:19px;word-break:break-all">' + esc(u) + '</div>' + (a && !a.blocked ? '<a class="mini" href="' + esc(a.href) + '" target="_blank" rel="noopener noreferrer">🌐 開く</a>' : '') + '</div>'; });
+        r.adrs.forEach((a) => { h += '<div class="field"><p class="lbl">住所</p><div class="v" style="font-size:21px">' + esc(a.v) + '</div><a class="mini" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(a.v) + '" target="_blank" rel="noopener noreferrer">📍 地図で見る</a></div>'; });
+        if (r.note) h += '<div class="field"><p class="lbl">メモ</p><div class="v" style="font-size:19px">' + esc(r.note) + '</div></div>';
+        if (!h) h = '<div class="field"><div class="v">読み取れる項目が ありませんでした</div></div>' + fullText;
         paper.innerHTML = h;
-        acts.innerHTML = '<button type="button" class="big" id="saveContact">👤 連絡先に保存<small>電話帳(連絡先アプリ)に入れます</small></button>' + copyBtn(text, '全文をコピー');
+        acts.innerHTML = '<button type="button" class="big" id="saveContact">👤 電話帳に 入れる<small>連絡先アプリに 保存します</small></button>';
+        speech += [r.name, r.org].filter(Boolean).join('、') + '。';
         break;
       }
       case 'tel':
         paper.innerHTML = '<p class="lbl">電話番号</p><p class="main">' + esc(r.pretty) + '</p>';
-        acts.innerHTML = btn('📞 電話をかける', '', 'href="tel:' + esc(r.number) + '"', '押すと 発信の確認が出ます') + copyBtn(r.number, '番号をコピー');
+        acts.innerHTML = btn('📞 電話をかける', '', 'href="tel:' + esc(r.number) + '"', '押すと 確認が出ます。すぐには かかりません');
+        speech += r.pretty.replace(/-/g, '、').split('').join(' ') + '。';
         break;
       case 'sms':
         paper.innerHTML = '<p class="lbl">送り先</p><p class="main">' + esc(r.pretty) + '</p>' + (r.msg ? '<p class="lbl">本文</p><pre class="full">' + esc(r.msg) + '</pre>' : '');
-        acts.innerHTML = btn('💬 SMS を書く', '', 'href="sms:' + esc(r.number) + (r.msg ? (/iPhone|iPad|iPod/.test(navigator.userAgent) ? '&' : '?') + 'body=' + encodeURIComponent(r.msg) : '') + '"') + copyBtn(r.number, '番号をコピー');
+        acts.innerHTML = btn('💬 ショートメールを書く', '', 'href="sms:' + esc(r.number) + (r.msg ? (/iPhone|iPad|iPod/.test(navigator.userAgent) ? '&' : '?') + 'body=' + encodeURIComponent(r.msg) : '') + '"');
         break;
       case 'mail': {
         const q = []; if (r.subject) q.push('subject=' + encodeURIComponent(r.subject)); if (r.body) q.push('body=' + encodeURIComponent(r.body));
-        paper.innerHTML = '<p class="lbl">宛先</p><p class="main mid">' + esc(r.to) + '</p>' + (r.subject ? '<p class="lbl">件名</p><div class="field"><div class="v">' + esc(r.subject) + '</div></div>' : '') + (r.body ? '<p class="lbl">本文</p><pre class="full">' + esc(r.body) + '</pre>' : '');
-        acts.innerHTML = btn('✉️ メールを書く', '', 'href="mailto:' + esc(r.to) + (q.length ? '?' + q.join('&') : '') + '"') + copyBtn(r.to, '宛先をコピー');
+        paper.innerHTML = '<p class="lbl">宛先</p><p class="main mid">' + esc(r.to) + '</p>' + (r.subject ? '<div class="field"><p class="lbl">件名</p><div class="v">' + esc(r.subject) + '</div></div>' : '') + (r.body ? '<p class="lbl">本文</p><pre class="full">' + esc(r.body) + '</pre>' : '');
+        acts.innerHTML = btn('✉️ メールを書く', '', 'href="mailto:' + esc(r.to) + (q.length ? '?' + q.join('&') : '') + '"');
         break;
       }
       case 'geo':
-        paper.innerHTML = '<p class="lbl">場所(緯度, 経度)</p><p class="main mid">' + esc(r.lat + ', ' + r.lng) + '</p>';
-        acts.innerHTML = btn('📍 地図で見る', '', 'href="' + esc(r.href) + '" target="_blank" rel="noopener noreferrer"', 'Google マップで開きます');
+        paper.innerHTML = '<p class="lbl">場所</p><p class="main mid">' + esc(r.lat + ', ' + r.lng) + '</p>';
+        acts.innerHTML = btn('📍 地図で見る', '', 'href="' + esc(r.href) + '" target="_blank" rel="noopener noreferrer"', 'Google マップで 開きます');
         break;
       case 'event':
-        paper.innerHTML = '<p class="lbl">予定</p><p class="main mid">' + esc(r.summary || '(名前なし)') + '</p>' + (r.start ? '<div class="field"><p class="lbl">日時</p><div class="v">' + esc(r.start.replace(/^(\d{4})(\d{2})(\d{2})T?(\d{2})?(\d{2})?.*$/, (m, y, mo, d, hh, mm) => y + '/' + mo + '/' + d + (hh ? ' ' + hh + ':' + mm : ''))) + '</div></div>' : '') + (r.location ? '<div class="field"><p class="lbl">場所</p><div class="v">' + esc(r.location) + '</div></div>' : '') + fullText;
-        acts.innerHTML = copyBtn(text, '全文をコピー');
+        paper.innerHTML = '<p class="lbl">予定</p><p class="main mid">' + esc(r.summary || '(名前なし)') + '</p>' + (r.start ? '<div class="field"><p class="lbl">日時</p><div class="v">' + esc(r.start.replace(/^(\d{4})(\d{2})(\d{2})T?(\d{2})?(\d{2})?.*$/, (m, y, mo, d, hh, mm) => y + '/' + mo + '/' + d + (hh ? ' ' + hh + ':' + mm : ''))) + '</div></div>' : '') + (r.location ? '<div class="field"><p class="lbl">場所</p><div class="v">' + esc(r.location) + '</div></div>' : '');
+        acts.innerHTML = copyBtn(text, '内容をコピー');
+        speech += (r.summary || '') + '。' + (r.location || '');
         break;
       default: {
-        const hasUrl = /https?:\/\/\S+/i.exec(r.text);
-        paper.innerHTML = '<p class="lbl">書いてある文字</p><pre class="full" style="max-height:none;font-size:20px;font-family:inherit;font-weight:700">' + esc(r.text) + '</pre>';
-        acts.innerHTML = copyBtn(r.text, '文字をコピー') + shareBtn(r.text) + (hasUrl ? '<p class="note">文字の中にアドレスがあります。開くなら、コピーしてブラウザに貼ってください。</p>' : '');
+        const hasUrl = /https?:\/\/\S+/i.test(r.text);
+        const codeLike = r.text.length >= 20 && !/\s/.test(r.text) && /^[\x21-\x7e]+$/.test(r.text) && !hasUrl;
+        if (codeLike) {
+          check.className = 'check warn';
+          check.innerHTML = '<div class="t">ℹ️ 数字や記号だけの QR です</div><div>税金や公共料金の 納付書の QR は、PayPay などの 支払いアプリの「読み取り」で 読んでください。このアプリでは 支払いは できません。</div>';
+          speech += '数字や記号だけの QR です。納付書の QR は、支払いアプリで 読んでください。';
+        } else speech += r.text.slice(0, 200);
+        paper.innerHTML = '<p class="lbl">書いてある文字</p><pre class="full" style="max-height:none;font-size:' + (codeLike ? '17px' : '22px;font-family:inherit;font-weight:700') + '">' + esc(r.text) + '</pre>';
+        acts.innerHTML = codeLike ? copyBtn(r.text, '文字をコピー') : copyBtn(r.text, '文字をコピー') + shareBtn(r.text) + (hasUrl ? '<p class="note">文字の中に アドレスがあります。開くときは、コピーして ブラウザに貼ってください。</p>' : '');
       }
     }
     acts.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => copyText(b.getAttribute('data-copy'))));
-    paper.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', () => copyText(b.getAttribute('data-copy'))));
     acts.querySelectorAll('[data-share]').forEach((b) => b.addEventListener('click', async () => { try { await navigator.share({ text: b.getAttribute('data-share') }); } catch (e) { /* やめただけ */ } }));
     const sc = $('saveContact'); if (sc) sc.addEventListener('click', () => saveContact(r, text));
+    $('speakBtn').classList.toggle('hidden', !('speechSynthesis' in window));
     show('result');
   }
 
-  /* 連絡先に保存: vCard のファイルを作って、共有(iPhone は「連絡先」が出る)か ダウンロード */
+  /* 家族に聞く: 読んだ内容と 注意を、LINE などで 家族に送る(アドレスは 開かずに見てもらう) */
+  async function askFamily(r, title) {
+    const msg = 'QRコードを読んだら、こう出ました。開いても大丈夫?\n\n' + title + '\n' + (r.warnings.length ? r.warnings.map((w) => '・' + w.text).join('\n') + '\n' : '')
+      + '\n行き先: ' + (r.host || '') + '\nアドレス(押さずに見てね): ' + r.href + '\n\n(あんしんQR より)';
+    try { if (navigator.share) { await navigator.share({ text: msg }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+    if (await copyText(msg)) toast('コピーしました。LINE に貼って 送ってください');
+  }
+
+  function speak() {
+    try {
+      const ss = window.speechSynthesis; if (!ss) return;
+      ss.cancel();
+      const u = new SpeechSynthesisUtterance(speech); u.lang = 'ja-JP'; u.rate = 0.9;
+      const v = (ss.getVoices() || []).find((x) => /^ja/i.test(x.lang)); if (v) u.voice = v;
+      ss.speak(u);
+    } catch (e) { toast('読み上げが 使えませんでした'); }
+  }
+
+  /* 電話帳に入れる: vCard のファイルを作って、共有(iPhone は「連絡先」が出る)か ダウンロード */
   async function saveContact(r, text) {
     const vcf = /^BEGIN:VCARD/i.test(text.trim()) ? text : [
       'BEGIN:VCARD', 'VERSION:3.0', 'N:' + (r.name || '').replace(/\s+/, ';') + ';;;', 'FN:' + (r.name || ''),
@@ -714,50 +763,70 @@ const UI = (() => {
     const fname = ((r.name || 'contact').replace(/[\\/:*?"<>|]/g, '').slice(0, 40) || 'contact') + '.vcf';
     const file = new File([vcf], fname, { type: 'text/vcard' });
     try {
-      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: r.name || '連絡先' }); toast('出てきた一覧から「連絡先」を選んでください'); return; }
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: r.name || '連絡先' }); toast('出てきた一覧から「連絡先」を 選んでください'); return; }
     } catch (e) { if (e && e.name === 'AbortError') return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([vcf], { type: 'text/vcard' })); a.download = fname; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
-    toast('ファイルを保存しました。開くと連絡先に入ります');
+    toast('ファイルを保存しました。開くと 電話帳に入ります');
   }
 
-  /* ---------- 履歴 ---------- */
+  /* ---------- さいきん読んだもの(最初は3件だけ。迷わないように) ---------- */
   function renderHistory() {
     const list = $('histList');
-    if (!history.length) { list.innerHTML = '<p class="empty">まだありません。読み取ると ここに残ります(このスマホの中だけ)。</p>'; return; }
-    list.innerHTML = history.map((h, i) => {
+    $('clearHist').classList.toggle('hidden', !history.length);
+    if (!history.length) { list.innerHTML = '<p class="empty">まだ ありません。</p>'; return; }
+    const shown = histOpen ? history : history.slice(0, 3);
+    list.innerHTML = shown.map((h, i) => {
       let r; try { r = Parse.parse(h.text); } catch (e) { r = { kind: 'text', text: h.text }; }
       const [icon, name] = Parse.KINDS[r.kind] || Parse.KINDS.text;
-      const d = new Date(h.at); const when = (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+      const d = new Date(h.at); const when = (d.getMonth() + 1) + '月' + d.getDate() + '日';
       return '<button type="button" class="item" data-i="' + i + '"><b>' + icon + '</b><span>' + esc(Parse.summary(r)) + '<br><small>' + name + '</small></span><small>' + when + '</small></button>';
-    }).join('');
+    }).join('') + (history.length > 3 ? '<button type="button" class="more" id="histMore">' + (histOpen ? '▲ 少なくする' : '▼ もっと見る(' + history.length + '件)') + '</button>' : '');
     list.querySelectorAll('.item').forEach((b) => b.addEventListener('click', () => { const h = history[+b.getAttribute('data-i')]; if (h) { Camera.stop(); openResult(h.text, h.at, false); } }));
+    const m = $('histMore'); if (m) m.addEventListener('click', () => { histOpen = !histOpen; renderHistory(); });
+  }
+
+  /* ---------- 設定(音・文字の大きさ) ---------- */
+  function renderSettings() {
+    document.querySelectorAll('#soundSeg button').forEach((b) => b.classList.toggle('on', (b.dataset.v === '1') === soundOn));
+    const large = store.get('qr.large', false);
+    document.body.classList.toggle('large', !!large);
+    document.querySelectorAll('#sizeSeg button').forEach((b) => b.classList.toggle('on', (b.dataset.v === '1') === !!large));
   }
 
   /* ---------- 画面の部品 ---------- */
   function init() {
     if (/\bLine\//i.test(navigator.userAgent)) $('lineBanner').classList.add('on');
-    updateSoundBtn(); renderHistory();
-    $('soundBtn').addEventListener('click', () => { soundOn = !soundOn; store.set('qr.sound', soundOn); updateSoundBtn(); if (soundOn) beep(); });
+    renderSettings(); renderHistory();
+    document.querySelectorAll('#soundSeg button').forEach((b) => b.addEventListener('click', () => { soundOn = b.dataset.v === '1'; store.set('qr.sound', soundOn); renderSettings(); if (soundOn) beep(); }));
+    document.querySelectorAll('#sizeSeg button').forEach((b) => b.addEventListener('click', () => { store.set('qr.large', b.dataset.v === '1'); renderSettings(); }));
     $('helpBtn').addEventListener('click', () => $('help').classList.add('on'));
     $('helpClose').addEventListener('click', () => $('help').classList.remove('on'));
     $('help').addEventListener('click', (e) => { if (e.target === $('help')) $('help').classList.remove('on'); });
-    $('startBtn').addEventListener('click', () => { beep && audioCtx === null && soundOn && (() => { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { /* */ } })(); startCamera(); });
-    $('againBtn').addEventListener('click', () => { show('scan'); startCamera(); });
-    $('torchBtn').addEventListener('click', async () => { const ok = await Camera.setTorch(!Camera.isTorchOn()); if (ok) $('torchBtn').classList.toggle('on', Camera.isTorchOn()); else toast('ライトをつけられませんでした'); });
-    $('zoom').addEventListener('input', () => { const z = parseFloat($('zoom').value); Camera.applyZoom(z); $('zoomVal').textContent = z.toFixed(1) + '倍'; });
-    $('zoomBox').classList.add('on');
+    $('startBtn').addEventListener('click', () => {
+      store.set('qr.intro', true);
+      if (soundOn && !audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { /* */ } }
+      startCamera();
+    });
+    $('againBtn').addEventListener('click', () => { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { /* */ } show('scan'); startCamera(); });
+    $('speakBtn').addEventListener('click', speak);
+    $('torchBtn').addEventListener('click', async () => {
+      const ok = await Camera.setTorch(!Camera.isTorchOn());
+      if (!ok) { toast('ライトを つけられませんでした'); return; }
+      $('torchBtn').classList.toggle('on', Camera.isTorchOn()); $('torchBtn').textContent = Camera.isTorchOn() ? '💡 ライトを消す' : '💡 ライト';
+    });
+    $('zoomBtn').addEventListener('click', () => setZoom(!zoomed));
     $('fileBtn').addEventListener('click', () => $('file').click());
     $('file').addEventListener('change', async () => {
       const f = $('file').files && $('file').files[0]; $('file').value = '';
       if (!f) return;
-      $('scanMsg').textContent = '写真の中を さがしています…';
+      toast('写真の中を さがしています…');
       try {
         const text = await Camera.decodeImage(f);
         if (text) { Camera.stop(); buzz(); beep(); openResult(text, Date.now(), true); }
-        else { toast('QRコードが見つかりませんでした'); $('scanMsg').textContent = 'QRコードが見つかりませんでした。QRが大きく はっきり写った写真で もう一度'; }
-      } catch (e) { toast('写真を読めませんでした'); $('scanMsg').textContent = 'この写真は読めませんでした'; }
+        else toast('QRコードが 見つかりませんでした');
+      } catch (e) { toast('この写真は 読めませんでした'); }
     });
-    $('clearHist').addEventListener('click', () => { if (!history.length) return; if (confirm('「さいきん読んだもの」を すべて消しますか?')) { history = []; store.set('qr.history', history); renderHistory(); toast('消しました'); } });
+    $('clearHist').addEventListener('click', () => { if (!history.length) return; if (confirm('「さいきん読んだもの」を ぜんぶ消しますか?')) { history = []; histOpen = false; store.set('qr.history', history); renderHistory(); toast('消しました'); } });
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) { if (Camera.isRunning()) { Camera.stop(); Camera._paused = true; } }
       else if (Camera._paused && $('scan').classList.contains('on')) { Camera._paused = false; startCamera(); }
@@ -765,6 +834,8 @@ const UI = (() => {
     // 確認用: アドレスの末尾に #test=<文字> で、カメラなしで結果画面を見られる
     const m = location.hash.match(/^#test=(.*)$/);
     if (m) { try { openResult(decodeURIComponent(m[1]), Date.now(), false); return; } catch (e) { /* */ } }
+    // はじめての人には、カメラの「許可」の画面が出る前に 説明する
+    if (!store.get('qr.intro', false)) { setCover('このアプリは <b>カメラ</b>で QRコードを読みます。<br><br>次に「カメラを使ってもいいですか」と出たら、<b>「許可」</b>を押してください。', 'はじめる'); return; }
     startCamera();
   }
   return { init, openResult };
