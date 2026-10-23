@@ -130,7 +130,10 @@
   .seg button { font-weight: 900; font-size: 20px; min-height: 56px; border-radius: 14px; border: 3px solid var(--line); background: #fff; color: var(--ink); }
   .seg button.on { background: var(--blue); border-color: var(--blue); color: #fff; }
   footer { font-size: 16px; color: var(--muted); line-height: 1.6; margin-top: 22px; text-align: center; }
-  footer a { color: inherit; }
+  .aboutbtn { margin-top: 10px; min-height: 52px; padding: 8px 20px; font-size: 18px; font-weight: 900; color: var(--blue); background: #fff; border: 2px solid var(--line); border-radius: 14px; }
+  .sheet ul.about { list-style: none; padding: 0; }
+  .sheet ul.about li { padding: 10px 0; border-top: 2px solid #edf0f7; margin: 0; }
+  .sheet ul.about li:first-child { border-top: 0; }
   .hidden { display: none !important; }
   @media (max-width: 360px) { h1 { font-size: 25px; } .paper .main { font-size: 27px; } .big { font-size: 21px; } }
 </style>
@@ -179,7 +182,7 @@
   <button type="button" class="big again" id="againBtn" style="margin-top:16px">📷 もう一度 読む</button>
 </section>
 
-<footer>あんしんQR v1.1 ・ 無料・広告なし ・ <a href="https://github.com/roguepink/QR">しくみ</a></footer>
+<footer>あんしんQR v1.2 ・ 無料・広告なし<br><button type="button" class="aboutbtn" id="aboutBtn">ℹ️ しくみと注意</button></footer>
 
 <div class="sheet" id="help">
   <div class="in">
@@ -213,6 +216,28 @@
     <h3>ホーム画面に入れる</h3>
     <p>iPhone(Safari): 下の共有ボタン → 「ホーム画面に追加」。Android(Chrome): 右上の︙ → 「アプリをインストール」。</p>
     <button type="button" class="big" id="helpClose" style="margin-top:16px">とじる</button>
+  </div>
+</div>
+
+<div class="sheet" id="about">
+  <div class="in">
+    <h2>しくみ</h2>
+    <ul class="about">
+      <li>📷 カメラに写った QRコードを、<b>このスマホの中だけで</b>読みます。</li>
+      <li>🔍 読んだあと、行き先に あやしい所がないか、国や役所のアドレスか を調べます。これも<b>スマホの中だけ</b>です。</li>
+      <li>🔒 読んだものを、インターネットに<b>送りません</b>。だれにも見られません。</li>
+      <li>📝「さいきん読んだもの」と設定は、このスマホに残ります。「消す」で消えます。</li>
+      <li>🆓 <b>無料・広告なし・登録なし</b>。お金がかかることは ありません。</li>
+    </ul>
+    <h3>⚠️ 注意</h3>
+    <ul class="about">
+      <li>「あやしい所は見つかりませんでした」は、<b>「安全」という意味では ありません</b>。行き先が お店や役所の名前と合っているか、ご自分の目でも 確かめてください。</li>
+      <li>開いた先で <b>パスワード・カード番号・暗証番号</b> を聞かれたら、入れずに 閉じてください。</li>
+      <li>開いた先のページは、このアプリとは 別のものです。</li>
+      <li>このアプリでは <b>支払いは できません</b>。納付書の QR は、PayPay などの 支払いアプリで 読んでください。</li>
+      <li>電波がないと、開いた先のページは 見られません。</li>
+    </ul>
+    <button type="button" class="big" id="aboutClose" style="margin-top:18px">とじる</button>
   </div>
 </div>
 
@@ -802,6 +827,9 @@ const UI = (() => {
     document.querySelectorAll('#soundSeg button').forEach((b) => b.addEventListener('click', () => { soundOn = b.dataset.v === '1'; store.set('qr.sound', soundOn); renderSettings(); if (soundOn) beep(); }));
     document.querySelectorAll('#sizeSeg button').forEach((b) => b.addEventListener('click', () => { store.set('qr.large', b.dataset.v === '1'); renderSettings(); }));
     $('helpBtn').addEventListener('click', () => $('help').classList.add('on'));
+    $('aboutBtn').addEventListener('click', () => $('about').classList.add('on'));
+    $('aboutClose').addEventListener('click', () => $('about').classList.remove('on'));
+    $('about').addEventListener('click', (e) => { if (e.target === $('about')) $('about').classList.remove('on'); });
     $('helpClose').addEventListener('click', () => $('help').classList.remove('on'));
     $('help').addEventListener('click', (e) => { if (e.target === $('help')) $('help').classList.remove('on'); });
     $('startBtn').addEventListener('click', () => {
