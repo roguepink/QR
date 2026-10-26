@@ -11,23 +11,14 @@
   "background_color": "#f3f5fa",
   "theme_color": "#f3f5fa",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "shots/1.jpg", "sizes": "320x480", "type": "image/jpeg", "form_factor": "narrow", "label": "行き先を先に見せる(見本)" },
+    { "src": "shots/2.jpg", "sizes": "320x480", "type": "image/jpeg", "form_factor": "narrow", "label": "あやしいアドレスは 知らせる(見本)" },
+    { "src": "shots/3.jpg", "sizes": "320x480", "type": "image/jpeg", "form_factor": "narrow", "label": "名刺も読める(見本)" },
+    { "src": "shots/4.jpg", "sizes": "320x480", "type": "image/jpeg", "form_factor": "narrow", "label": "はじめの説明" }
   ]
 }
